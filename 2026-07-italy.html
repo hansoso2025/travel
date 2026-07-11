@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Rome Weekend, 4-6 July 2026</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root{
+    --d1:#E8833A;   /* Saturday  */
+    --d2:#2E8B8B;   /* Sunday    */
+    --d3:#7A6FB0;   /* Monday logistics */
+    --ink:#1c2530;
+    --muted:#5b6b7a;
+    --line:#e2e6ea;
+    --bg:#f6f7f8;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.55;
+  }
+  .wrap{max-width:1040px;margin:0 auto;padding:28px 20px 80px;}
+  header.hero{border-left:6px solid var(--d1);padding:6px 0 6px 18px;margin-bottom:22px;}
+  header.hero h1{margin:0 0 4px;font-size:28px;}
+  header.hero .sub{color:var(--muted);font-size:15px;}
+  h2{font-size:21px;margin:34px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--line);}
+  h3{font-size:17px;margin:20px 0 8px;}
+  p{margin:8px 0;}
+  a{color:#0a66c2;text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:14px 0;box-shadow:0 1px 2px rgba(0,0,0,.03);}
+  .tldr{background:#fff7f0;border:1px solid #f0d8c2;}
+  .note{background:#fbfbe8;border:1px solid #e7e7bd;}
+  .dayhead{display:flex;align-items:center;gap:10px;margin-top:10px;}
+  .daydot{width:16px;height:16px;border-radius:50%;flex:0 0 auto;}
+  .d1 .daydot{background:var(--d1);} .d2 .daydot{background:var(--d2);} .d3 .daydot{background:var(--d3);}
+  .day-d1{border-left:6px solid var(--d1);} .day-d2{border-left:6px solid var(--d2);} .day-d3{border-left:6px solid var(--d3);}
+  .pin{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;
+       color:#fff;font-weight:700;font-size:12px;line-height:1;flex:0 0 auto;vertical-align:middle;font-family:inherit;}
+  .pin-d1{background:var(--d1);} .pin-d2{background:var(--d2);} .pin-d3{background:var(--d3);}
+  .pin-food{border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15);}
+  table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14px;}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top;}
+  th{background:#eef1f3;font-weight:600;}
+  td.tm{white-space:nowrap;color:var(--muted);font-variant-numeric:tabular-nums;}
+  td.pincell{text-align:center;white-space:nowrap;}
+  .hours{color:var(--muted);font-size:12.5px;}
+  .foodrow td{background:#fcfaf7;}
+  .optrow td{background:#f4f6f8;}
+  .glance td,.glance th{font-size:13.5px;}
+  #map{height:520px;border-radius:10px;border:1px solid var(--line);margin:8px 0;}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--muted);margin:6px 2px 0;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .swatch{width:12px;height:12px;border-radius:50%;display:inline-block;}
+  .leaflet-badge{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;
+    color:#fff;font-weight:700;font-size:12px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4);font-family:-apple-system,Segoe UI,Roboto,sans-serif;}
+  ul.tight{margin:6px 0;padding-left:20px;} ul.tight li{margin:3px 0;}
+  .kv{color:var(--muted);font-size:13px;}
+  .tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:10px;background:#eef1f3;color:var(--muted);margin-left:6px;}
+  .tag-new{background:#e6f4ea;color:#1e7a3d;}
+  .tag-re{background:#eef0ff;color:#4a48a8;}
+  .tag-opt{background:#f0eaf5;color:#6a4a9a;}
+  .footer{color:var(--muted);font-size:12.5px;margin-top:40px;border-top:1px solid var(--line);padding-top:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>Rome, casual weekend before the offsite</h1>
+    <div class="sub">Saturday 4 to Monday 6 July 2026 &nbsp;&middot;&nbsp; solo &nbsp;&middot;&nbsp; base: Hostel Mosaic, Via Cernaia 39B (Termini) &nbsp;&middot;&nbsp; then Rome Greenfield offsite</div>
+  </header>
+
+  <div class="card tldr">
+    <strong>TL;DR.</strong> You did the whole first-timer core in March 2024, so this is neighbourhoods, food and snacks on the ground, not sights. The rule: <strong>no paid entries</strong> anywhere (no re-paying for the Colosseum or any museum, and nothing the offsite will cover), but free revisits of the Old Town and piazzas are welcome. Land Saturday ~10:00, in the city by ~11:30. Drop the bag, stay out and active, check in whenever. Each day runs in one direction so you are not doubling back. You have your sun umbrella, so the day is planned around what is good, not around dodging the sun.
+  </div>
+
+  <h2>Trip at a glance</h2>
+  <table class="glance">
+    <tr><th>When</th><th>Base / status</th><th>Shape of the day</th></tr>
+    <tr><td class="tm">Sat 4 Jul</td><td>Hostel Mosaic (drop bag, check in flexibly)</td><td>Land FCO 10:00, in city ~11:30. Local lunch (Trattoria Monti), Monti lanes, a free amble to the Fori and Colosseum from outside and into the Old Town, then San Lorenzo for the evening food.</td></tr>
+    <tr><td class="tm">Sun 5 Jul</td><td>Hostel Mosaic</td><td>One north-to-south sweep: centre first (Ghetto, Tiber Island), across to Trastevere, south to the Porta Portese market, a proper Roman lunch beside the market, then Testaccio for the afternoon and a cucina-romana dinner. One direction, always heading south: over to Trastevere at the island, back at Ponte Sublicio into Testaccio, no doubling back.</td></tr>
+    <tr><td class="tm">Mon 6 Jul</td><td>Checkout 11:00, move to Hotel Albani</td><td>Logistics handoff (Option A), at the AWS office before 12:00. Offsite starts 12:30.</td></tr>
+    <tr><td class="tm">Tue-Wed</td><td>Offsite</td><td>Fully scheduled incl. evenings. Wed ends 12:30, flight FCO 15:55.</td></tr>
+  </table>
+
+  <h2>Map</h2>
+  <p class="kv">Solid numbered pins are sights in each day's colour, in walking order. Hollow (white) lettered pins are the food stops (B breakfast, L lunch, D dinner, S snack/gelato/coffee, P pastry); they sit on the walking line in visit order but keep their letters, so the sightseeing numbers stay unbroken. The house pin is your hostel. A couple of food stops that are flexible or an alternative (the maritozzo, the pizza alt) are shown off the line. Optional sightseeing add-ons are described in the text, not pinned, to keep the map clean.</p>
+  <div id="map"></div>
+  <div class="legend">
+    <span><span class="swatch" style="background:var(--d1)"></span> Saturday</span>
+    <span><span class="swatch" style="background:var(--d2)"></span> Sunday</span>
+    <span><span class="swatch" style="background:var(--d3)"></span> Monday logistics</span>
+    <span>solid number = sight &nbsp;&middot;&nbsp; hollow letter = food</span>
+  </div>
+
+  <!-- ================= SATURDAY ================= -->
+  <h2 class="day-d1">Saturday 4 July &mdash; land, eat, wander, San Lorenzo</h2>
+  <div class="card day-d1">
+    <div class="dayhead d1"><span class="daydot"></span><strong>The day in one paragraph</strong></div>
+    <p>You land at 10:00 and reach the hostel around 11:30. Drop the bag (ask for the lower bunk) and stay out, you do not need to go back and rest, and you check in whenever you drift past. Start with a proper local lunch at <strong>Trattoria Monti</strong>, look into <strong>Santa Maria Maggiore</strong> next door (free), then wander the lanes of <strong>Monti</strong>. Since free revisits are fair game, keep going on foot down <strong>Via dei Fori Imperiali</strong> and see the Fori and the <strong>Colosseum from the outside</strong> (no ticket), and drift into the Old Town if you feel like it. In the evening, <strong>San Lorenzo</strong>, the student quarter you did not see in 2024, for the food.</p>
+  </div>
+  <table>
+    <tr><th>Time</th><th>#</th><th>Place</th><th>What you do and how you get there</th><th>Est.</th></tr>
+    <tr><td class="tm">~11:30</td><td class="pincell"><span class="pin pin-d1">&#8962;</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Hostel+Mosaic+Via+Cernaia+39+Roma">Hostel Mosaic</a></td>
+      <td>Leonardo Express FCO&rarr;Termini (~32 min, ~&euro;14), 5-min walk to Via Cernaia 39B. Drop the bag (they hold luggage), ask for the lower bunk, then head out. Check in later, flexibly. <span class="hours">Checkout Mon by 11:00.</span></td><td>&mdash;</td></tr>
+    <tr class="foodrow"><td class="tm">~13:00</td><td class="pincell"><span class="pin pin-d1 pin-food">L</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Trattoria+Monti+Via+di+San+Vito+Roma">Trattoria Monti</a></td>
+      <td><strong>Lunch. Famous for</strong> cooking from Le Marche (the region on Italy's central Adriatic coast), not strictly Roman: family-run, ~12 tables, a place Romans reserve rather than tourists. ~8-min walk from the hostel. <strong>Order:</strong> the <em>tortello al rosso d'uovo</em>, their signature, a single oversized ravioli filled with ricotta and spinach around a whole runny egg yolk that bursts when you cut it (one per person, rich); then a roast or game secondo (main course) or another handmade pasta. <span class="hours">Sat lunch ~13:00-14:45. Small, book ahead. ~&euro;35-45.</span> If you would rather not commit on arrival day, Monti and Esquilino are full of casual walk-ins.</td><td>1.5 hr</td></tr>
+    <tr><td class="tm">~14:45</td><td class="pincell"><span class="pin pin-d1">1</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Basilica+di+Santa+Maria+Maggiore+Roma">Santa Maria Maggiore</a> <span class="tag tag-new">new</span></td>
+      <td>One of the four papal basilicas, 5 min from the hostel. Fifth-century gold mosaics, gilded ceiling. Free. <span class="hours">Daily ~07:00-18:45. Shoulders and knees covered.</span></td><td>30 min</td></tr>
+    <tr><td class="tm">~15:30</td><td class="pincell"><span class="pin pin-d1">2</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Piazza+della+Madonna+dei+Monti+Roma">Monti</a> <span class="tag tag-re">free re-see</span></td>
+      <td><strong>Route:</strong> from Santa Maria Maggiore go down Via Urbana into Monti to Piazza della Madonna dei Monti (the little fountain square that is the hub), then loop Via del Boschetto and Via dei Serpenti for the vintage and craft shops and a coffee or gelato, and carry on down to Via dei Fori Imperiali. Flat and central. <span class="hours">The Mercato Monti weekend market is closed in July, so this is the lanes, not the market.</span></td><td>1 hr</td></tr>
+    <tr><td class="tm">~16:45</td><td class="pincell"><span class="pin pin-d1">3</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Colosseo+Roma">Fori &amp; Colosseum, from outside</a> <span class="tag tag-re">free re-see</span></td>
+      <td>Walk down Via dei Fori Imperiali past the Imperial Fora, and see the Colosseum free from the street or the Colle Oppio rise. No ticket, no queue, just the view.</td><td>45 min</td></tr>
+    <tr><td class="tm">~17:30</td><td class="pincell"><span class="pin pin-d1">4</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Piazza+Venezia+Roma">Piazza Venezia</a> <span class="tag tag-re">free re-see</span></td>
+      <td>The boulevard from the Fori runs straight into Piazza Venezia and the big white Vittoriano. Free, and the pivot into the Old Town. Carry on from here only if you have the legs.</td><td>15 min</td></tr>
+    <tr><td class="tm">~17:50</td><td class="pincell"><span class="pin pin-d1">5</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Pantheon+Roma">Pantheon</a> <span class="tag tag-re">free re-see</span></td>
+      <td>A 10-min walk northwest through the lanes to the Pantheon's piazza and portico. The square and exterior are free; skip the paid interior. A fountain and cafes to pause at.</td><td>30 min</td></tr>
+    <tr><td class="tm">~18:25</td><td class="pincell"><span class="pin pin-d1">6</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Piazza+Navona+Roma">Piazza Navona</a> <span class="tag tag-re">free re-see</span></td>
+      <td>Five minutes on to Piazza Navona, the great baroque square with Bernini's Four Rivers fountain, at its best in the early evening. This is the turnaround; from here take a tram or metro to San Lorenzo.</td><td>30 min</td></tr>
+    <tr class="foodrow"><td class="tm">flexible</td><td class="pincell"><span class="pin pin-d1 pin-food">P</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Pasticceria+Regoli+Via+dello+Statuto+60+Roma">Pasticceria Regoli</a></td>
+      <td><strong>Famous for</strong> the <em>maritozzo con panna</em>: a family-run pastry shop since 1916, a genuine local institution 7 min from the hostel. <strong>Order:</strong> the <em>maritozzo con panna</em>, their benchmark, a soft sweet bun split and overstuffed with whipped cream; or a slice of <em>crostata</em>, a lattice-topped jam tart (sour-cherry or ricotta). Best in the morning before they sell through, today or tomorrow. <span class="hours">~07:00-20:00, closed Tue.</span></td><td>15 min</td></tr>
+    <tr><td class="tm">~19:15</td><td class="pincell"><span class="pin pin-d1">7</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=San+Lorenzo+quartiere+Roma">San Lorenzo</a> <span class="tag tag-new">new</span></td>
+      <td>Freshen up at the hostel (check in now if you like), then a tram or metro hop east. <strong>Route:</strong> in along Via Tiburtina, down Via dei Volsci and Via degli Equi (the liveliest street-food stretch), through Piazza dell'Immacolata, past the murals on the side streets, ending at Pommidoro on Piazza dei Sanniti for dinner.</td><td>walk</td></tr>
+    <tr class="foodrow"><td class="tm">~20:00</td><td class="pincell"><span class="pin pin-d1 pin-food">D</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Pommidoro+Piazza+dei+Sanniti+Roma">Pommidoro</a></td>
+      <td><strong>Dinner. Famous for</strong> its coal grill and Roman classics: a family trattoria since 1890, Pasolini's old local, popular with Romans. <strong>Order:</strong> the <em>carbonara</em> (spaghetti with guanciale, cured pork cheek, egg, pecorino, a sharp sheep's cheese, and black pepper, no cream), and something off the <em>grill</em>, the lamb chops (abbacchio scottadito) or a steak; wild boar (cinghiale) in season. <span class="hours">Mon-Sat, closed Sun. ~&euro;35-45. Worth booking.</span></td><td>1.5 hr</td></tr>
+    <tr class="foodrow"><td class="tm">alt</td><td class="pincell"><span class="pin pin-d1 pin-food">S</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Pizzeria+Formula+1+Via+degli+Equi+Roma">Pizzeria Formula 1</a></td>
+      <td><strong>Famous for</strong> cheap thin Roman pizza and fritti (fried starters): a bustling San Lorenzo institution, a lighter alternative to Pommidoro. No reservations, arrive ~19:00. <strong>Order:</strong> start with the <em>fritti</em>, <em>supplì</em> (a fried rice croquette with a molten mozzarella centre), <em>filetto di baccalà</em> (a battered, deep-fried salt-cod fillet) and <em>fiori di zucca</em> (fried zucchini flowers stuffed with mozzarella and anchovy), then a thin Roman pizza.</td><td>1 hr</td></tr>
+  </table>
+
+  <!-- ================= SUNDAY ================= -->
+  <h2 class="day-d2">Sunday 5 July &mdash; centre, Trastevere, market, Testaccio</h2>
+  <div class="card day-d2">
+    <div class="dayhead d2"><span class="daydot"></span><strong>The day in one paragraph</strong></div>
+    <p>A flat, food-first day as one straight north-to-south sweep, always heading south with no doubling back. Start in the <strong>centre</strong> while it is quiet: the <strong>Jewish Ghetto</strong>, then <strong>Tiber Island</strong> and across to <strong>Trastevere</strong>'s quiet western lanes (a small Otaleg gelato on the way). Walk south to the <strong>Porta Portese</strong> Sunday flea market, then a proper Roman lunch at <strong>La Tavernaccia da Bruno</strong> right beside it. Cross Ponte Sublicio into <strong>Testaccio</strong>, Rome's real food quarter, for the afternoon: the streets, the Pyramid of Cestius, a coffee or granita, and the food-finale dinner at <strong>Flavio al Velavevodetto</strong>. Two proper meals in two different areas, snacks in between, and the day ends where you finish. (Garbatella was dropped, a southern metro spur that did not earn the detour.)</p>
+  </div>
+  <table>
+    <tr><th>Time</th><th>#</th><th>Place</th><th>What you do and how you get there</th><th>Est.</th></tr>
+    <tr class="foodrow"><td class="tm">~09:00</td><td class="pincell"><span class="pin pin-d2 pin-food">B</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Pasticceria+Regoli+Via+dello+Statuto+60+Roma">Regoli</a> or a caffè</td>
+      <td>Breakfast at Regoli near the hostel: the <em>maritozzo con panna</em> (the cream-filled bun, see Saturday) with a cappuccino, then a ~15-min walk down into the centre.</td><td>30 min</td></tr>
+    <tr><td class="tm">~09:30</td><td class="pincell"><span class="pin pin-d2">1</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Portico+d%27Ottavia+Ghetto+Roma">Jewish Ghetto</a> <span class="tag tag-re">free re-see</span></td>
+      <td>Quiet and pleasant in the morning, beyond the one bakery you hit in 2024: the ancient columns of the Portico d'Ottavia, the little turtle fountain (Fontana delle Tartarughe) on Piazza Mattei, and the lanes.</td><td>1 hr</td></tr>
+    <tr><td class="tm">~10:30</td><td class="pincell"><span class="pin pin-d2">2</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Isola+Tiberina+Roma">Tiber Island</a> <span class="tag tag-new">new</span></td>
+      <td>Walk onto the little boat-shaped island (you did not see it in 2024), then keep going across Ponte Cestio to Trastevere. You cross to the west bank here over the island (Ponte Fabricio, then Ponte Cestio); later you cross back once at Ponte Sublicio into Testaccio, both times heading south.</td><td>30 min</td></tr>
+    <tr><td class="tm">~11:00</td><td class="pincell"><span class="pin pin-d2">3</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Piazza+di+San+Cosimato+Trastevere+Roma">Trastevere, quiet side</a> <span class="tag tag-re">free re-see</span></td>
+      <td><strong>Route:</strong> Piazza San Cosimato and the residential western lanes (Via della Luce, Via dei Vascellari, past Santa Cecilia), away from the tour-group drag you saw in 2024. Then walk south along Via di San Francesco a Ripa toward the market.</td><td>1 hr</td></tr>
+    <tr class="foodrow"><td class="tm">~11:45</td><td class="pincell"><span class="pin pin-d2 pin-food">S</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Otaleg+Trastevere+Roma">Otaleg</a></td>
+      <td><strong>Famous for</strong> being among Rome's best artisan gelato: Otaleg ("gelato" backwards), on Via di San Cosimato, a chef-favourite in the Michelin guide's picks, small daily batches. <strong>Order:</strong> the <em>salted pistachio</em> and a seasonal fruit sorbet (passion fruit, lemon), or a creative flavour like mascarpone-basil-lemon or mango with dark chocolate. Muted, natural colours are the good sign. <span class="hours">From late morning.</span></td><td>15 min</td></tr>
+    <tr><td class="tm">~12:00</td><td class="pincell"><span class="pin pin-d2">4</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Porta+Portese+market+Roma">Porta Portese market</a> <span class="tag tag-new">new</span></td>
+      <td>Rome's huge Sunday-only flea market, 1,000+ stalls: antiques, vintage, records, junk, locals haggling. Enter from the Via Ettore Rolli end for the local side. <span class="hours">Sun ~07:00-14:00, still busy till ~13:30. Zip your bag, pickpocket territory.</span></td><td>1 hr</td></tr>
+    <tr class="foodrow"><td class="tm">~13:15</td><td class="pincell"><span class="pin pin-d2 pin-food">L</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=La+Tavernaccia+da+Bruno+Via+Giovanni+da+Castel+Bolognese+Roma">La Tavernaccia da Bruno</a></td>
+      <td><strong>Lunch, the real one. Famous for</strong> its wood-fired oven: a 50-year family trattoria right by Porta Portese, Umbrian and Roman, genuinely local (rated by Katie Parla and other critics), not a tourist spot. ~5-min walk on from the market. <strong>Order:</strong> the <em>five-layer lasagna</em> (their Sunday signature) or the wood-roasted <em>suckling pig</em> (maialino, tender young pork); for a Roman pasta, the <em>gricia</em> (just guanciale and pecorino, no tomato or egg, one of the best in town). Start with the wood-oven <em>focaccia</em> and sliced mountain ham. <span class="hours">Open Sun ~12:45-15:00; ~&euro;25-35; book. Likely closed Mon.</span> A market <em>supplì</em> or <a href="https://www.google.com/maps/search/?api=1&query=Trapizzino+Testaccio+Roma">Trapizzino</a> (a pizza-bread pocket stuffed with a Roman stew) beforehand is fine, but keep room.</td><td>1.5 hr</td></tr>
+    <tr><td class="tm">~15:00</td><td class="pincell"><span class="pin pin-d2">5</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Testaccio+Roma">Testaccio</a> <span class="tag tag-re">free re-see</span></td>
+      <td><strong>Route:</strong> cross Ponte Sublicio into Testaccio, Rome's real food quarter. Via Marmorata, Piazza Testaccio and its fountain, the covered-market building (shut Sundays, but worth a look), the streets around Monte Testaccio. You saw the hill in 2024; this time it is the streets, the food and the evening. Settle in here for the rest of the day.</td><td>afternoon</td></tr>
+    <tr><td class="tm">~15:45</td><td class="pincell"><span class="pin pin-d2">6</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Piramide+Cestia+Roma">Pyramid of Cestius</a> <span class="tag tag-new">new</span></td>
+      <td>At the southern edge of Testaccio, an actual 2,000-year-old Roman pyramid tomb, ~36 m of white marble beside the old Porta San Paolo. Free to see from outside, flat, and genuinely odd. A short walk from the neighbourhood, then back in for a coffee or granita and a rest through the heat.</td><td>30 min</td></tr>
+    <tr class="foodrow"><td class="tm">~20:00</td><td class="pincell"><span class="pin pin-d2 pin-food">D</span></td>
+      <td><a href="https://www.google.com/maps/search/?api=1&query=Flavio+al+Velavevodetto+Via+di+Monte+Testaccio+Roma">Flavio al Velavevodetto</a></td>
+      <td><strong>Dinner, the food finale, and you are already here. Famous for</strong> its award-winning cacio e pepe, in a cellar dug into Monte Testaccio (a 2,000-year-old mound of broken Roman amphorae). <strong>Order:</strong> the <em>cacio e pepe</em>, their signature, tonnarelli (fresh square-cut spaghetti) in a creamy pecorino-and-black-pepper sauce with no butter or cream, widely called the best in Rome; then a <em>quinto quarto</em> ("fifth quarter", the offal cuts) dish for the true Testaccio tradition, <em>coda alla vaccinara</em> (oxtail slow-braised with celery and tomato, the approachable one) or <em>rigatoni con pajata</em> (pasta with milk-fed veal intestine, the hardcore one); finish with the <em>tiramisu</em>. Arrive at opening as a solo, or book. <span class="hours">Open Sun 12:30-15:00 and 19:30-23:00 (open daily).</span> Alternatives: <a href="https://www.google.com/maps/search/?api=1&query=Trattoria+Perilli+Via+Marmorata+39+Roma">Perilli</a> (open Sun, closed Wed; its <em>carbonara</em> is called one of Rome's best), or the more off-circuit <a href="https://www.google.com/maps/search/?api=1&query=Agustarello+a+Testaccio+Roma">Agustarello</a>.</td><td>1.5 hr</td></tr>
+    <tr class="optrow"><td class="tm">option</td><td class="pincell"><span class="pin pin-d2" style="opacity:.55">+</span></td>
+      <td>Aventine (Orange Garden + keyhole) <span class="tag tag-opt">optional</span></td>
+      <td>If you want a scenic add and don't mind a short climb, the Aventine sits just north of Testaccio: the Orange Garden terrace and the keyhole view of St Peter's dome. Free, ~1 hr.</td><td>1 hr</td></tr>
+    <tr class="optrow"><td class="tm">evening</td><td class="pincell"><span class="pin pin-d2" style="opacity:.55">~</span></td>
+      <td>Riverside <span class="tag tag-opt">if running</span></td>
+      <td>The southern stretch of the <strong>Lungo il Tevere</strong> summer festival runs along the embankment near Ponte Sublicio, a short stroll from Testaccio, if it is on in 2026. Then a tram or bus back to the hostel.</td><td>&mdash;</td></tr>
+  </table>
+
+  <!-- ================= MONDAY ================= -->
+  <h2 class="day-d3">Monday 6 July &mdash; the handoff to the offsite (Option A)</h2>
+  <div class="card day-d3">
+    <div class="dayhead d3"><span class="daydot"></span><strong>The plan you chose</strong></div>
+    <p>Checkout is by 11:00 and you need to be at the AWS office before 12:00, but the offsite hotel does not check you in until 17:00. So the luggage goes to the hotel first and you arrive at the office unburdened. One cheap taxi in the morning solves it, and at 17:00 you walk to the hotel with the team, bag already there.</p>
+    <ul class="tight">
+      <li><strong>~09:30</strong> &mdash; breakfast and coffee near the hostel (a last maritozzo at Regoli), pack up.</li>
+      <li><strong>by 11:00</strong> &mdash; check out of Hostel Mosaic (Via Cernaia 39B).</li>
+      <li><strong>~11:00</strong> &mdash; short taxi to <a href="https://www.google.com/maps/search/?api=1&query=Hotel+Albani+Roma+Via+Adda+45">Hotel Albani, Via Adda 45</a> (~10 min, ~&euro;10-12). Leave the bag with reception.</li>
+      <li><strong>~11:30</strong> &mdash; 20-min walk (or a 5-min taxi) to the <a href="https://www.google.com/maps/search/?api=1&query=Via+Versilia+2+Roma">AWS office, Via Versilia 2 (FCO11)</a>. Coffee near Via Veneto if early.</li>
+      <li><strong>before 12:00</strong> &mdash; arrive. Offsite starts 12:30 (room Colosseo), lunch in the office.</li>
+      <li><strong>17:00</strong> &mdash; walk to Hotel Albani with the team to check in. <strong>19:00</strong> dinner (Lievito), <strong>20:00</strong> walking tour from Piazza di Spagna.</li>
+    </ul>
+  </div>
+  <table>
+    <tr><th></th><th>Point</th><th>Detail</th></tr>
+    <tr><td class="pincell"><span class="pin pin-d3">A</span></td><td><a href="https://www.google.com/maps/search/?api=1&query=Hostel+Mosaic+Via+Cernaia+39+Roma">Hostel Mosaic</a></td><td>Via Cernaia 39B. Checkout by 11:00.</td></tr>
+    <tr><td class="pincell"><span class="pin pin-d3">B</span></td><td><a href="https://www.google.com/maps/search/?api=1&query=Hotel+Albani+Roma+Via+Adda+45">Hotel Albani</a></td><td>Via Adda 45. Drop bag; check-in from 17:00.</td></tr>
+    <tr><td class="pincell"><span class="pin pin-d3">C</span></td><td><a href="https://www.google.com/maps/search/?api=1&query=Via+Versilia+2+Roma">AWS office FCO11</a></td><td>Via Versilia 2. Before 12:00. ~20-min walk from the hotel.</td></tr>
+  </table>
+
+  <!-- ================= PRACTICAL ================= -->
+  <h2>Tickets, transport, practicalities</h2>
+  <div class="card">
+    <ul class="tight">
+      <li><strong>No paid entries, by design.</strong> Everything here is free: the basilica, the markets, the neighbourhoods, the Colosseum and Pyramid from outside, Tiber Island. No monument tickets, no museums, nothing you saw in 2024 or that the offsite will cover.</li>
+      <li><strong>Transport.</strong> Airport: Leonardo Express (FCO&harr;Termini, ~32 min, ~&euro;14). In town: contactless tap (~&euro;1.50 / 100 min). Sat: walking plus a tram/metro hop to San Lorenzo. Sun: mostly walking (centre to Trastevere to the market to Testaccio), Tram 3/8 links Testaccio back to the centre; both river crossings are on foot (over Tiber Island to Trastevere, then back at Ponte Sublicio into Testaccio).</li>
+      <li><strong>Booking.</strong> Reserve Trattoria Monti (Sat lunch), Pommidoro (Sat dinner), La Tavernaccia da Bruno (Sun lunch) and Flavio al Velavevodetto (Sun dinner). Pizzeria Formula 1 is walk-in; Perilli is the Sunday-dinner fallback.</li>
+      <li><strong>Heat.</strong> ~31-33&deg;C. Your umbrella covers the sun; keep water topped up at the <em>nasoni</em> (street fountains). Churches want shoulders and knees covered.</li>
+    </ul>
+  </div>
+
+  <!-- ================= FOOD PRIMER (BACKGROUND) ================= -->
+  <h2>Background: what to eat, and what these dishes actually are</h2>
+  <p class="kv">Reference, not a schedule. Roman food is <em>cucina povera</em>, poor-kitchen cooking that turns cheap cuts and pantry staples into the city's signature plates. The offsite gives you a pizzeria (Mon) and a pasta-and-tiramisu class (Tue), so this weekend leans into street food, offal and sweets.</p>
+  <div class="card">
+    <h3>Savoury</h3>
+    <ul class="tight">
+      <li><strong>Supplì</strong> &mdash; a fried rice ball, risotto rice bound with tomato ragù around a molten mozzarella centre. Eaten by hand.</li>
+      <li><strong>Pizza al taglio / pizza romana</strong> &mdash; "by the cut" from a tray, sold by weight, or the thin crisp round Roman pizza.</li>
+      <li><strong>Filetti di baccalà</strong> &mdash; salt cod fillets in batter, deep-fried. A classic fritto.</li>
+      <li><strong>The four Roman pastas</strong> &mdash; carbonara (egg, guanciale, pecorino, pepper, no cream), cacio e pepe (pecorino and pepper), amatriciana (tomato, guanciale, pecorino), gricia (the white, tomato-less one). Guanciale is cured pork cheek.</li>
+      <li><strong>Coda alla vaccinara</strong> &mdash; oxtail slow-braised with celery and tomato, the definitive Testaccio dish from your 2024 list.</li>
+      <li><strong>Rigatoni con la pajata / coratella</strong> &mdash; pasta with a milk-fed calf's intestines (pajata); coratella is heart, lung and offal with artichokes. Traditional, not for the squeamish.</li>
+      <li><strong>Carciofi alla romana / giudia</strong> &mdash; artichokes braised with mint (romana) or flattened and deep-fried whole, Jewish-Roman style (giudia).</li>
+      <li><strong>Trapizzino</strong> &mdash; a pocket of pizza bread stuffed with a spoonful of a classic stew. A modern Roman street-food invention, born in Testaccio.</li>
+    </ul>
+    <h3>Sweet</h3>
+    <ul class="tight">
+      <li><strong>Maritozzo con panna</strong> &mdash; a soft sweet bun split and packed with whipped cream. The Roman breakfast treat; Regoli is the benchmark.</li>
+      <li><strong>Crostata alle visciole</strong> &mdash; a lattice tart of sour wild cherries, a Jewish-Ghetto speciality (you had this in 2024).</li>
+      <li><strong>Gelato</strong> &mdash; look for natural colours and seasonal fruit, the sign of in-house production. Otaleg qualifies.</li>
+    </ul>
+    <h3>Non-alcoholic drinks to try</h3>
+    <ul class="tight">
+      <li><strong>Caffè freddo</strong> &mdash; pre-sweetened cold espresso, everywhere in summer. <strong>Granita di caffè con panna</strong> is shaved coffee ice with cream.</li>
+      <li><strong>Spremuta</strong> &mdash; fresh-squeezed juice. <strong>Chinotto</strong> is a dark, bitter-citrus soda.</li>
+      <li><strong>Cappuccino</strong> is a morning drink by local custom; after lunch, an espresso. Tap and nasone water is safe and cold.</li>
+    </ul>
+  </div>
+
+  <!-- ================= NOTES ================= -->
+  <h2>Notes and honest caveats</h2>
+  <div class="card note">
+    <ul class="tight">
+      <li><strong>Each day runs one direction.</strong> Saturday flows out from the hostel through Monti and the Old Town to San Lorenzo. Sunday is a straight north-to-south sweep (centre, Trastevere, market, Testaccio), crossing to the west bank at the island and back at Ponte Sublicio, always heading south, dinner where you end. No doubling back.</li>
+      <li><strong>All food picks vetted to your standard, and their weekend hours confirmed.</strong> Genuinely local: Regoli (maritozzo) and La Tavernaccia da Bruno (Sun lunch by Porta Portese, rated by Katie Parla and other critics). Popular but the substance holds: Trattoria Monti (Sat lunch), Pommidoro (Sat dinner), Otaleg (gelato), Flavio al Velavevodetto (Sun dinner in Testaccio; like Perilli, a known name with a tourist mix but the food holds). Formula 1 is a cheap local pizzeria (some say past its peak). Confirmed open on the days used: Monti (Sat; closed Mon), Pommidoro (Sat; closed Sun), La Tavernaccia (Sun lunch; likely closed Mon), Flavio (daily incl. Sun 12:30-15:00 / 19:30-23:00), Perilli (closed Wed). A last glance the day before is still wise.</li>
+      <li><strong>Garbatella dropped.</strong> It is a charming 1920s garden-city, but a southern metro spur with no real sight, so it did not earn the detour on a two-day weekend. One for a future longer trip.</li>
+      <li><strong>Porta Portese is Sundays only</strong> (~07:00-14:00); by ~13:30 it is winding down, so do not leave it too late. Crowded, keep valuables zipped.</li>
+      <li><strong>Mercato Monti (Sat) is closed in July</strong>, so Saturday afternoon is the Monti lanes, not the market.</li>
+      <li><strong>Lungo il Tevere 2026 dates not confirmed.</strong> It ran early June to late August in 2025 and reliably covers July, so it should be on, but treat it as a bonus and check turismoroma.it nearer the time.</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    Built for Han. Flights: LH1866 MUC 08:25 &rarr; FCO 10:00 (Sat 4 Jul); LH1869 FCO 15:55 &rarr; MUC 17:30 (Wed 8 Jul). Hostel Mosaic conf. 6404051782. &nbsp; Hours and prices verified at planning time and should be reconfirmed at booking.
+  </div>
+
+</div>
+
+<script>
+  var DAYCOL = { d1:'#E8833A', d2:'#2E8B8B', d3:'#7A6FB0' };
+
+  // type: 'sight' | 'food' | 'base'; label = number or letter; day = d1/d2/d3
+  var STOPS = [
+    // Saturday
+    {day:'d1',type:'base', label:'\u2302', name:'Hostel Mosaic (base)', lat:41.9048, lng:12.4978},
+    {day:'d1',type:'food', label:'L', name:'Trattoria Monti (lunch)', lat:41.8963, lng:12.5006},
+    {day:'d1',type:'sight',label:'1', name:'Santa Maria Maggiore', lat:41.8976, lng:12.4986},
+    {day:'d1',type:'sight',label:'2', name:'Monti (lanes)', lat:41.8946, lng:12.4906},
+    {day:'d1',type:'sight',label:'3', name:'Fori & Colosseum (from outside)', lat:41.8902, lng:12.4922},
+    {day:'d1',type:'sight',label:'4', name:'Piazza Venezia', lat:41.8959, lng:12.4828},
+    {day:'d1',type:'sight',label:'5', name:'Pantheon (piazza, from outside)', lat:41.8986, lng:12.4769},
+    {day:'d1',type:'sight',label:'6', name:'Piazza Navona', lat:41.8992, lng:12.4731},
+    {day:'d1',type:'food', label:'P', name:'Regoli (maritozzo, flexible)', lat:41.8955, lng:12.5010, route:false},
+    {day:'d1',type:'sight',label:'7', name:'San Lorenzo (district)', lat:41.8952, lng:12.5150},
+    {day:'d1',type:'food', label:'D', name:'Pommidoro (dinner)', lat:41.8956, lng:12.5157},
+    {day:'d1',type:'food', label:'S', name:'Pizzeria Formula 1 (San Lorenzo, alt)', lat:41.8949, lng:12.5148, route:false},
+    // Sunday (one north-to-south sweep, no backtracking)
+    {day:'d2',type:'food', label:'B', name:'Regoli (breakfast)', lat:41.8955, lng:12.5010},
+    {day:'d2',type:'sight',label:'1', name:'Jewish Ghetto', lat:41.8928, lng:12.4779},
+    {day:'d2',type:'sight',label:'2', name:'Tiber Island', lat:41.8901, lng:12.4780},
+    {day:'d2',type:'sight',label:'3', name:'Trastevere (Piazza San Cosimato)', lat:41.8875, lng:12.4695},
+    {day:'d2',type:'food', label:'S', name:'Otaleg (Trastevere gelato)', lat:41.8875, lng:12.4700},
+    {day:'d2',type:'sight',label:'4', name:'Porta Portese market', lat:41.8792, lng:12.4722},
+    {day:'d2',type:'food', label:'L', name:'La Tavernaccia da Bruno (Sun lunch)', lat:41.8758, lng:12.4692},
+    {day:'d2',type:'sight',label:'5', name:'Testaccio', lat:41.8778, lng:12.4760},
+    {day:'d2',type:'sight',label:'6', name:'Pyramid of Cestius', lat:41.8763, lng:12.4808},
+    {day:'d2',type:'food', label:'D', name:'Flavio al Velavevodetto (Testaccio dinner)', lat:41.8760, lng:12.4757},
+    // Monday logistics
+    {day:'d3',type:'sight',label:'A', name:'Hostel Mosaic (checkout)', lat:41.9048, lng:12.4978},
+    {day:'d3',type:'sight',label:'B', name:'Hotel Albani (drop bag)', lat:41.9143, lng:12.4977},
+    {day:'d3',type:'sight',label:'C', name:'AWS office FCO11', lat:41.9066, lng:12.4897}
+  ];
+
+  function badge(stop){
+    var c = DAYCOL[stop.day];
+    // sights: solid coloured pin with white number. food: hollow white pin with coloured letter.
+    var style = (stop.type === 'food')
+      ? 'background:#fff;color:'+c+';border:2px solid '+c+';'
+      : 'background:'+c+';color:#fff;';
+    return L.divIcon({
+      className:'',
+      html:'<div class="leaflet-badge" style="'+style+'">'+stop.label+'</div>',
+      iconSize:[24,24], iconAnchor:[12,12]
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var map = L.map('map');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:'&copy; OpenStreetMap', maxZoom:19
+    }).addTo(map);
+
+    var all = [];
+    STOPS.forEach(function(s){
+      L.marker([s.lat,s.lng],{icon:badge(s)}).addTo(map).bindPopup('<strong>'+s.label+'</strong> '+s.name);
+      all.push([s.lat,s.lng]);
+    });
+
+    // dashed route lines per day, in visit order, threading through the food stops too
+    // (food stays on the line and in sequence; only flexible/alt stops set route:false)
+    ['d1','d2','d3'].forEach(function(d){
+      var pts = STOPS.filter(function(s){return s.day===d && s.route!==false;})
+                     .map(function(s){return [s.lat,s.lng];});
+      if(pts.length>1){
+        L.polyline(pts,{color:DAYCOL[d],weight:3,dashArray:'6,8',opacity:.75}).addTo(map);
+      }
+    });
+
+    // hostel-zone circle
+    L.circle([41.9048,12.4978],{radius:350,color:'#E8833A',weight:1,fillOpacity:.05}).addTo(map);
+
+    map.fitBounds(L.latLngBounds(all).pad(0.12));
+  });
+</script>
+</body>
+</html>
