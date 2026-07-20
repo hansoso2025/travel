@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Baltics 2026 - City Planning (Tallinn · Riga · Vilnius)</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root{
+    --ink:#1c2530; --muted:#5d6b7a; --line:#e3e8ee; --bg:#f6f8fa; --card:#fff;
+    --d1:#d7263d; --d2:#1b9e3e; --d3:#1f6fd0; --d4:#e8730c; --d5:#7b2fbe;
+    --d6:#c81d77; --d7:#0e8f8f; --d8:#9a7a0a; --d9:#6b7480;
+    --accent:#0b6b6b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.55;font-size:16px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+  header.hero{background:linear-gradient(135deg,#0b3a3a,#0e6b6b);color:#fff;padding:40px 0 34px;margin-bottom:8px}
+  header.hero .wrap{padding-bottom:0}
+  header.hero h1{margin:0 0 6px;font-size:30px;letter-spacing:-.3px}
+  header.hero p{margin:4px 0;color:#d7ecec;font-size:15px}
+  .pills{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:5px 11px;border-radius:999px;font-size:13px}
+  h2{font-size:24px;margin:42px 0 6px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+  h2 .sub{font-size:15px;font-weight:400;color:var(--muted);display:block;margin-top:3px}
+  h3{font-size:18px;margin:24px 0 8px}
+  p.lead{color:var(--muted);margin-top:4px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0;
+    box-shadow:0 1px 2px rgba(20,30,40,.04)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .why{background:#f0f7f7;border-left:4px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin:12px 0}
+  .why b{color:var(--accent)}
+  .cityintro p{margin:8px 0}
+  .cityintro b{color:var(--accent)}
+  .map{height:460px;border-radius:12px;border:1px solid var(--line);margin:12px 0 4px;z-index:0}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 4px;font-size:13.5px}
+  .legend .lg{display:flex;align-items:center;gap:6px}
+  .dot{width:14px;height:14px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+  .hotelmark{display:inline-block;width:13px;height:13px;border:2px dashed #111;border-radius:3px;background:rgba(0,0,0,.05)}
+  table{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:14.5px}
+  th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#eef3f5;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.03em;color:#43525f}
+  td.t{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--accent);font-weight:700;width:66px}
+  td.t .dur{display:block;color:var(--muted);font-weight:500;font-size:12px;margin-top:2px}
+  td.pl{width:188px}
+  a.lm{color:#0b5cad;font-weight:700;text-decoration:none;border-bottom:1px dotted #0b5cad}
+  a.lm:hover{background:#eaf3fb}
+  .meta{display:block;color:var(--muted);font-size:12.5px;margin-top:5px}
+  .hours{color:#b3531a;font-weight:600}
+  .exec{background:#fbf7ef;border:1px solid #ece0c6;border-left:4px solid var(--d8);border-radius:0 8px 8px 0;
+    padding:11px 15px;margin:14px 0 4px;font-size:14.5px}
+  .exec b{color:#8a6d0f}
+  .exec .hl{color:#8a6d0f;font-weight:600}
+  .daytag{display:inline-block;color:#fff;font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;margin-right:8px}
+  .seq{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;
+    color:#fff;font-size:12px;font-weight:700;margin-right:7px;vertical-align:middle}
+  .food{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+  @media(max-width:680px){.food{grid-template-columns:1fr}}
+  .food .f{background:#fbf7ef;border:1px solid #efe3cc;border-radius:9px;padding:10px 12px;font-size:14px}
+  .food .f b{display:block;color:#9a7a0a;font-size:12px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+  .hotel{background:#eef4fb;border:1px solid #d3e3f5;border-radius:9px;padding:12px 16px;margin:10px 0}
+  .hotel b{color:#1f6fd0}
+  .note{font-size:13px;color:var(--muted)}
+  ul.tight{margin:6px 0;padding-left:20px}
+  ul.tight li{margin:3px 0}
+  .tradeoff td:first-child{font-weight:600;white-space:nowrap}
+  footer{margin-top:50px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:18px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <h1>Baltics 2026 - City Planning</h1>
+    <p>Tallinn → Riga → Vilnius · north to south · 8 nights, Sat 25 Jul - Sun 2 Aug 2026</p>
+    <p>Fast pace · city-first · public transport only · no backtracking · ~€292 in flights</p>
+    <div class="pills">
+      <span class="pill">Fly in: MUC→TLL Sat 25 Jul, airBaltic via Riga, €202</span>
+      <span class="pill">Fly out: VNO→MUC Sun 2 Aug 20:00 nonstop, €90</span>
+      <span class="pill">Tallinn 3n · Riga 2n · Vilnius 3n</span>
+    </div>
+    <p class="note" style="color:#bfe0e0;margin-top:12px">Every place name in blue is a clickable Google Maps link. Maps need an internet connection to load.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <h2>Dates at a glance</h2>
+  <p class="lead">One row per day, like the Notion trip skeleton: where you sleep, how many nights, and what the day structurally is. The detail lives in the city sections below.</p>
+  <div class="card">
+    <table>
+      <tr><th>Day</th><th>Date</th><th>Sleep in (base)</th><th>Nights</th><th>What the day is</th></tr>
+      <tr><td>1</td><td>Sat 25 Jul</td><td>Tallinn</td><td>3</td><td><b>Arrive</b> 14:35 + Old Town evening sweep</td></tr>
+      <tr><td>2</td><td>Sun 26 Jul</td><td>Tallinn</td><td>·</td><td><b>Base day</b> Toompea, port + Telliskivi</td></tr>
+      <tr><td>3</td><td>Mon 27 Jul</td><td>Tallinn</td><td>·</td><td><b>Base day</b> Kadriorg, Pirita + Kalamaja evening (slow day)</td></tr>
+      <tr><td>4</td><td>Tue 28 Jul</td><td>Riga</td><td>2</td><td><b>Move</b> coach 09:40-14:00 + medieval core</td></tr>
+      <tr><td>5</td><td>Wed 29 Jul</td><td>Riga</td><td>·</td><td><b>Base day</b> Art Nouveau + market belt</td></tr>
+      <tr><td>6</td><td>Thu 30 Jul</td><td>Vilnius</td><td>3</td><td><b>Move</b> coach 10:00-13:45 + northern anchor</td></tr>
+      <tr><td>7</td><td>Fri 31 Jul</td><td>Vilnius</td><td>·</td><td><b>Base day</b> Old Town spine + Užupis</td></tr>
+      <tr><td>8</td><td>Sat 1 Aug</td><td>Vilnius</td><td>·</td><td><b>Day trip</b> Trakai castle, farewell dinner back in town</td></tr>
+      <tr><td>9</td><td>Sun 2 Aug</td><td>— (fly home)</td><td>—</td><td><b>Fly</b> loose morning, VNO→MUC 20:00</td></tr>
+    </table>
+  </div>
+
+  <h2>The central idea</h2>
+  <p class="lead">Why the trip is shaped this way, before the day-by-day. Each choice was made against your profile: fast pace, city-first, local food, light nature only, no driving, value over comfort.</p>
+
+  <div class="card">
+    <h3>1. Direction: north to south, because price said so</h3>
+    <p>The three capitals sit on a straight line (Vilnius south, Riga middle, Tallinn north), so the only routes that hit all three without doubling back are the two end-to-end directions. Riga is the middle, so flying in or out of Riga would force a backtrack and was ruled out. I priced both clean directions live:</p>
+    <table class="tradeoff">
+      <tr><th>Direction</th><th>Outbound (Sat 25 Jul)</th><th>Return (Sun 2 Aug)</th><th>Total</th></tr>
+      <tr><td>In Vilnius / out Tallinn</td><td>MUC→VNO €214 nonstop</td><td>TLL→MUC €151</td><td>~€365</td></tr>
+      <tr><td>In Tallinn / out Vilnius</td><td>MUC→TLL €202 (via Riga)</td><td>VNO→MUC €90 nonstop</td><td><b>~€292</b></td></tr>
+    </table>
+    <p class="note">The decisive number is the Vilnius→Munich leg: airBaltic flies it nonstop for €90 in the evening, the cheapest clean leg in the whole search and ~€75 less than the reverse. Monday 3 Aug is the same €90, so there is no price reason to burn an extra night and leave day. We fly home Sunday evening, a full last day in Vilnius.</p>
+  </div>
+
+  <div class="card">
+    <h3>2. Nights: Tallinn 3 / Riga 2 / Vilnius 3, and why not "biggest city gets most"</h3>
+    <p>Riga is the biggest city by population, but most of that size is residential and Soviet-era outer districts, not visitor ground. Measured in actual sightseeing time, the cities are closer than the population suggests:</p>
+    <table>
+      <tr><th>City</th><th>City-only time</th><th>Nights</th><th>Reason for the night count</th></tr>
+      <tr><td>Tallinn</td><td>~1.5 days</td><td>3</td><td>3rd day is a day trip (seaside), plus a half-day arrival</td></tr>
+      <tr><td>Riga</td><td>~1.5-2 days</td><td>2</td><td>Compact, concentrated core; done well in 1.5-2 days</td></tr>
+      <tr><td>Vilnius</td><td>~2.5 days</td><td>3</td><td>Largest old town + Trakai + a full fly-out day</td></tr>
+    </table>
+    <p class="note">Pure in-city time is almost even between Tallinn and Riga. The night counts differ for reasons unrelated to city size: flight mechanics (half-day Tallinn arrival, full-day Vilnius departure) and day trips (Tallinn's seaside day, Vilnius's Trakai). Riga's tourist core is tight enough that 1.5-2 days covers it without rushing.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>3. What I cut, and why</h3>
+      <ul class="tight">
+        <li><b>Helsinki day trip: out.</b> A 2h ferry each way for a ~6h taste is too much transit, and you have lived in Finland. It earns its own Nordic trip later.</li>
+        <li><b>Lahemaa National Park: out.</b> No clean public transport, it needs a car or a booked tour. You do not drive, so it is not workable.</li>
+        <li><b>Jūrmala beach: not needed.</b> The most skippable add-on for a city-first traveller, so Riga stays at 2 nights.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>4. Museums: a high bar, not a checklist</h3>
+      <ul class="tight">
+        <li><b>Tallinn - Seaplane Harbour: in.</b> Rated one of Europe's best, a submarine you walk inside, not a niche stop. It clears the bar.</li>
+        <li><b>Riga: none anchored.</b> The draw is the architecture itself, seen by walking the Art Nouveau streets. The small Art Nouveau Museum is an optional on-theme stop.</li>
+        <li><b>Vilnius: none anchored.</b> A streets, churches and Užupis city. The Occupations/KGB museum is left clearly optional.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Getting between the cities</h2>
+  <div class="card">
+    <table>
+      <tr><th>Leg</th><th>When</th><th>How</th><th>Time / cost</th></tr>
+      <tr><td>Munich → Tallinn</td><td>Sat 25 Jul, dep 09:00</td><td>airBaltic via Riga, arrive 14:35. Tram 4 airport→centre (~25 min, ~€2)</td><td>5h35 / €202</td></tr>
+      <tr><td>Tallinn → Riga</td><td>Tue 28 Jul, dep 09:40</td><td>FlixBus (booked; route N1301, seat 7B). Tallinn Bus Station (Lastekodu tn 46, platform 12) → Riga Bus Station (Prāgas iela 1, by the Central Market), arrive 14:00</td><td>4h20 / €13.98</td></tr>
+      <tr><td>Riga → Vilnius</td><td>Thu 30 Jul, dep 10:00</td><td>FlixBus (booked; route 1231, seat 14C). Riga Bus Station (Prāgas iela 1) → Vilnius Bus Station (Sodų g. 22), arrive 13:45</td><td>3h45 / €13.48</td></tr>
+      <tr><td>Vilnius → Munich</td><td>Sun 2 Aug, dep 20:00</td><td>airBaltic nonstop. Train airport→centre 8 min, ~€1</td><td>2h / €90</td></tr>
+    </table>
+    <p class="note">Both inter-city legs are booked on FlixBus (comfortable, wifi, reclining seats), morning departures so each travel day still leaves the afternoon for the next city. Confirmation numbers and seats are in `booking-checklist.md`.</p>
+  </div>
+
+  <!-- ============ TALLINN ============ -->
+  <h2 id="tallinn">Tallinn<span class="sub">3 nights · Sat 25 - Tue 28 Jul</span></h2>
+
+  <div class="card cityintro">
+    <p><b>Theme.</b> A medieval fairy-tale core wrapped in a cool maritime port city. Tallinn pairs the best-preserved old town in northern Europe with a reinvented harbour district of street art and design.</p>
+    <p><b>How the days split.</b> Tallinn is small and dense, so I split by character, not by checklist. Day 1 (half day) eases you into the Lower Town. Day 2 pairs the oldest Tallinn (Toompea hill) with the newest (the creative port and its maritime museum). Day 3 is the easy seaside day, deliberately the slow day of the trip.</p>
+    <p><b>The route.</b> The walled Old Town is the compact heart and your base. Everything else sits a short tram or bus ride north (the port and Kalamaja) or east (Kadriorg and the coast), so each day fans out from the Old Town and back, no crossing over.</p>
+  </div>
+
+  <div id="map-tallinn" class="map"></div>
+  <div class="legend">
+    <span class="lg"><span class="dot" style="background:var(--d1)"></span> Day 1 · Sat, arrival</span>
+    <span class="lg"><span class="dot" style="background:var(--d2)"></span> Day 2 · Sun, Old Town + port</span>
+    <span class="lg"><span class="dot" style="background:var(--d3)"></span> Day 3 · Mon, seaside</span>
+    <span class="lg"><span class="hotelmark"></span> Recommended hotel zone</span>
+  </div>
+
+  <div class="hotel"><b>Where to base:</b> inside or just beside the Old Town (Vanalinn), eastern edge near the Viru Gate / Rotermann Quarter. Everything in the Old Town is on foot, tram 4 runs from the airport to here, and the same line reaches the Bus Station for the Riga coach. One central base, zero daily transit.</div>
+
+  <div class="why" style="border-left-color:#e8730c"><b style="color:#e8730c">Tickets and the Tallinn Card.</b> Nothing in Tallinn needs advance booking. Pay as you go: Seaplane Harbour ~€20-24, St. Olaf's tower ~€5-8, transport ~€2 a ride. Alexander Nevsky cathedral, Kadriorg park and Pirita are free. Your paid items total about €38, while the 72-hour Tallinn Card is around €90, so skip the card and buy individually. The only dress rule in the city: shoulders and knees covered inside the Orthodox cathedral.</div>
+
+  <h3><span class="daytag" style="background:var(--d1)">Day 1</span>Sat 25 Jul - arrival, the Lower Town east-to-west</h3>
+  <div class="exec"><b>Today:</b> you land at 14:35 and are in the Old Town by 15:30, so the first evening is a full, continuous east-to-west sweep of the Lower Town's lanes, all free, no tickets, ending at dinner two minutes from the last stop. Short-haul arrival, so no ease-in beat: bags down, straight out. <span class="hl">Highlight: St. Catherine's Passage and the wall lanes.</span></div>
+  <table>
+    <tr><th>Time</th><th>Place</th><th>What you'll see, and how you get there</th></tr>
+    <tr><td class="t">14:35<span class="dur">arrival</span></td><td class="pl">Land TLL → hotel</td><td>Tram 4 from the airport to the centre, ~25 min, ~€2. Drop bags by ~15:30 (check-in is 15:00, so the room is ready).</td></tr>
+    <tr><td class="t">15:45<span class="dur">30 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Viru%20Gate%20Tallinn" target="_blank">Viru Gate</a> + wall lane</td><td>The twin round towers of the Viru Gate are the Old Town's postcard entrance, steps from your hotel. Behind them, the medieval wall along Müürivahe street has the knit market: hand-knitted sweaters and mittens sold against the old stone. <span class="meta">Start of the sweep, zero transit.</span></td></tr>
+    <tr><td class="t">16:20<span class="dur">40 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=St%20Catherines%20Passage%20Tallinn" target="_blank">St. Catherine's Passage</a></td><td>A tiny cobbled lane where craft workshops (glass, ceramics, hats) work behind open doors. The most atmospheric corner of the old quarter, then wander the surrounding lanes. <span class="meta">2-min walk from the wall.</span></td></tr>
+    <tr><td class="t">17:00<span class="dur">30 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Meistrite%20Hoov%20Tallinn" target="_blank">Masters' Courtyard</a></td><td>Meistrite Hoov, a hidden cobbled craft courtyard off Vene street: artisan studios and a small chocolaterie café, the quietest corner of the quarter. <span class="meta">2-min walk via Vene street.</span></td></tr>
+    <tr><td class="t">17:35<span class="dur">45 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Town%20Hall%20Square%20Tallinn" target="_blank">Town Hall Square</a> + Raeapteek</td><td>The medieval market square ringed by pastel merchant houses, anchored by a 600-year-old Gothic town hall topped by the "Old Thomas" weathervane. On the square's north side, peek into <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Raeapteek%20Tallinn" target="_blank">Raeapteek</a>, the Town Hall Pharmacy, running since 1422, one of Europe's oldest still-operating pharmacies, with a tiny free museum room. <span class="meta"><span class="hours">Verified 20 Jul: Mon-Sat 10:00-18:00, so your 17:35 Saturday slot works; free.</span></span></td></tr>
+    <tr><td class="t">18:25<span class="dur">30 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Danish%20Kings%20Garden%20Tallinn" target="_blank">Danish King's Garden</a></td><td>A quiet terrace garden tucked under the Toompea wall, with the three bronze faceless-monk statues and the wall towers (Kiek in de Kök) looming above, the best low-effort medieval backdrop in town. <span class="meta">Up Lühike jalg, the medieval "Short Leg" staircase street; you descend the same steps and land a street away from dinner.</span></td></tr>
+    <tr><td class="t">19:00<span class="dur">dinner</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Rataskaevu%2016%20restoran%20Tallinn" target="_blank">Dinner: Rataskaevu 16</a></td><td>Tallinn's best-loved spot for Estonian comfort food: slow-cooked elk, baked apple with blood sausage, hearty and mid-priced, in an Old Town townhouse (4.8 stars across 6,246 reviews). <span class="meta">Replaces Vanaema Juures, which the re-check found has had no reviews in about 3 years and looks closed. A 4.8 average over 6,246 reviews is the opposite of a recent-low-review pattern, so it passes your test. Walk-in plan: arrive ~19:00, ahead of the dinner wave; solo usually fits (verified 20 Jul: open Sat 12:00-24:00, mains still in the local band, no tourist price creep). If it is genuinely full, the same owners run Väike Rataskaevu around the corner at Niguliste 6 (vetted 20 Jul: same kitchen style, consistently praised; Sat open from 12:00).</span></td></tr>
+  </table>
+
+  <h3><span class="daytag" style="background:var(--d2)">Day 2</span>Sun 26 Jul - the oldest Tallinn meets the newest</h3>
+  <div class="exec"><b>Today:</b> a morning in the walled Old Town (the upper hill and the towered Lower Town), then an afternoon out at the harbour and the creative quarter. You start high on Toompea hill for the views, drop down through the medieval streets, then head out to the port for the maritime museum and work back through the street-art district to dinner. The day is the contrast: 700-year-old towers in the morning, submarines and street murals in the afternoon. <span class="hl">Highlight: walking inside the submarine at the Seaplane Harbour.</span></div>
+  <table>
+    <tr><th>Time</th><th>Place</th><th>What you'll see, and how you get there</th></tr>
+    <tr><td class="t">08:30<span class="dur">grab</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=RUKIS%20Kohvik%20ja%20Pagarikoda%20Tallinn" target="_blank">Breakfast: RUKIS</a></td><td>A proper local bakery-café in the Old Town for pastries, good coffee and a quick breakfast before the climb up Toompea. Cheap and well-loved (4.5 stars, 2,546 reviews, €). Try the Kama dessert, a roasted-grain Estonian classic. <span class="meta">By the Viru Gate, on your way up. Newest reviews check out: recent 5-star breakfast praise, no recent-low cluster.</span></td></tr>
+    <tr><td class="t">09:00<span class="dur">45 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Alexander%20Nevsky%20Cathedral%20Tallinn" target="_blank">Alexander Nevsky Cathedral</a> + Toompea</td><td>The onion-domed Russian Orthodox cathedral crowning Toompea hill, ornate inside. Next to it, the old castle on the hill is now parliament. <span class="meta">Start early while the hill is quiet. <span class="hours">Free entry, opens 08:00. Dress: shoulders and knees covered, no shorts (active Orthodox church).</span></span></td></tr>
+    <tr><td class="t">09:50<span class="dur">30 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Kohtuotsa%20viewpoint%20Tallinn" target="_blank">Kohtuotsa viewpoint</a></td><td>The terrace with the postcard view: a sea of red-tiled roofs and church spires with the modern towers behind. <span class="meta">2-min walk along the hilltop.</span></td></tr>
+    <tr><td class="t">10:45<span class="dur">45 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=St%20Olafs%20Church%20Tallinn" target="_blank">St. Olaf's Church</a></td><td>Around 1500 this was reputedly the tallest building in the world. A steep, narrow tower climb gives the best 360° view of the city and sea. <span class="meta">Walk downhill into the Lower Town. <span class="hours">Tower climb ~€5-8 (church free), pay at the door, no booking, ~10:00-18:00, 232 steps.</span></span></td></tr>
+    <tr><td class="t">12:15<span class="dur">1 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Balti%20Jaam%20Market%20Tallinn" target="_blank">Lunch: Balti Jaam Market</a></td><td>The food-and-flea market by the train station, right on the way out to the port: street-food stalls and a fresh-food hall, the best casual eating in town. Try the smoked Baltic fish or herring, a genuine coastal-Estonian specialty. <span class="meta">~7 min from the Old Town toward Telliskivi. Food hall open daily ~09:00-19:00.</span></td></tr>
+    <tr><td class="t">13:30<span class="dur">2.5 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Seaplane%20Harbour%20Tallinn" target="_blank">Seaplane Harbour</a></td><td>A cavernous 1917 seaplane hangar that is now a hands-on maritime museum: walk inside the WWII submarine Lembit, board the icebreaker moored outside, climb into a flying boat. The museum I anchored the trip on. <span class="meta">Bus 73 from Balti Jaam, or a 25-min walk through Kalamaja. <span class="hours">Entry ~€20-24, no booking needed (book online only to skip the peak-afternoon queue). Open daily 10:00-19:00; 2.5h done by 16:00.</span></span></td></tr>
+    <tr><td class="t">16:15<span class="dur">30 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Kalamaja%20Tallinn" target="_blank">Kalamaja</a></td><td>The wooden-house neighbourhood between the port and the centre: pastel timber homes from the early 1900s, now the bohemian residential quarter. You stroll back through it. <span class="meta">On the walk back toward Telliskivi.</span></td></tr>
+    <tr><td class="t">17:00<span class="dur">1 h+</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Telliskivi%20Creative%20City%20Tallinn" target="_blank">Telliskivi Creative City</a></td><td>A disused railway-factory complex reborn as Estonia's coolest district: huge street-art murals, design studios, vintage shops, and the <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Balti%20Jaam%20Market%20Tallinn" target="_blank">Balti Jaam Market</a> food hall next door. Browse, snack, then dinner here. <span class="meta">No closing pressure, it runs into the evening.</span></td></tr>
+    <tr><td class="t">19:30<span class="dur">dinner</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=F-hoone%20Tallinn" target="_blank">Dinner: F-hoone</a></td><td>The original Telliskivi restaurant and an outright local favourite: quality food at kept-low prices (4.4 stars across 6,335 reviews, €10-20). Unfussy, walk-in. <span class="meta">End of the day's loop in Telliskivi, no doubling back. Re-checked: recent reviews are mostly positive (steak, salmon, "a favourite in Tallinn"), with a few recent food-quality gripes and a regular noting it has grown busier and more touristy. Still a genuine Telliskivi spot, but not flawless.</span></td></tr>
+  </table>
+
+  <h3><span class="daytag" style="background:var(--d3)">Day 3</span>Mon 27 Jul - the easy seaside day</h3>
+  <div class="why"><b>Why outdoors today:</b> Kadriorg Palace and the KUMU art museum both close on Mondays. Rather than fight that, Monday is built as a park-and-coast day, all open-air, all reachable by tram and bus. This is the deliberate slow day of an otherwise fast trip.</div>
+  <div class="exec"><b>Today:</b> a relaxed morning in a tsar-era park, then up the coast to the beach and the old convent for the famous view back at the Old Town skyline, then across to Kalamaja for the wooden-house streets Sunday only brushed past, ending at the neighbourhood's defining café-restaurant. Still the slow day of the trip, but with no dead hours. <span class="hl">Highlight: the medieval skyline seen across the bay from Pirita.</span></div>
+  <table>
+    <tr><th>Time</th><th>Place</th><th>What you'll see, and how you get there</th></tr>
+    <tr><td class="t">09:15<span class="dur">grab</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=R%C3%98ST%20Bakery%20Tallinn" target="_blank">RØST Bakery</a></td><td>Tallinn's best-loved bakery: cardamom and cinnamon buns and sourdough, all cheap (4.8 stars, 2,868 reviews, €1-10). Grab a takeaway bun on your way east. <span class="meta">On the route out toward Kadriorg. Verified: top local rating, local pricing.</span></td></tr>
+    <tr><td class="t">10:00<span class="dur">1.5 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Kadriorg%20Park%20Tallinn" target="_blank">Kadriorg Park</a></td><td>A baroque park and palace Peter the Great built for his wife. The grounds, Swan Pond and Japanese garden are the draw (we stay outside, free; interiors close Mondays anyway). <span class="meta">Tram 1 or 3 from the centre, ~15 min.</span></td></tr>
+    <tr><td class="t">12:00<span class="dur">1 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=NOP%20Cafe%20Tallinn" target="_blank">Lunch: NOP</a></td><td>A neighbourhood café-deli locals actually use, between the centre and Kadriorg (4.5 stars, 1,876 reviews, €10-20). Good soups, bakes and local produce. <span class="meta">On the way to or from the park. Verified local spot.</span></td></tr>
+    <tr><td class="t">13:30<span class="dur">2 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Pirita%20Beach%20Tallinn" target="_blank">Pirita</a></td><td>A seaside district with a long sandy beach and the ruined St. Bridget's Convent (1400s). The classic photo of Tallinn's medieval skyline is taken from here, across the bay. <span class="meta">Bus 1A/8/34A up the coast, ~15 min.</span></td></tr>
+    <tr><td class="t">16:30<span class="dur">~45 min</span></td><td class="pl">Bus back + tram across</td><td>Bus 1A/8/34A back toward the centre, then tram or a short walk into Kalamaja proper. <span class="meta">~40 min total transit; the slow day affords it.</span></td></tr>
+    <tr><td class="t">17:15<span class="dur">1.5 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Kalamaja%20Tallinn" target="_blank">Kalamaja wooden streets</a></td><td>Sunday only clipped Kalamaja's edge; now walk its heart: the pastel timber lanes around Valgevase and Salme streets, corner cafés, small galleries, the everyday Tallinn neighbourhood the guidebooks call Estonia's coolest. No tickets, no route pressure, just the quarter itself. <span class="meta">This is the deep-dive version of Sunday's brief crossing; different streets, fresh ground.</span></td></tr>
+    <tr><td class="t">19:00<span class="dur">dinner</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Boheem%20Kopli%20Tallinn" target="_blank">Dinner: Boheem</a></td><td>Kalamaja's defining café-restaurant since before the district was cool: big cheap portions, soups, pastas and local comfort plates, full of students and neighbourhood regulars (4.4 stars). <span class="meta">Kopli 18, in the quarter you are already walking. Vetted 20 Jul (replaces Põhjala, which is CLOSED Mondays, verified): recent reads praise cheap, satisfying food; the one recent gripe is coffee pricing, not the meals. Open daily 10:00-22:00. Walk in ~19:00.</span></td></tr>
+  </table>
+
+  <div class="food">
+    <div class="f"><b>Pastry / breakfast</b>RUKIS in the Old Town (4.5 stars, breakfast and Kama dessert) and RØST Bakery (4.8 stars, cardamom buns). Maiasmokk (1864) is the historic landmark café.</div>
+    <div class="f"><b>Lunch</b>Balti Jaam Market (smoked Baltic fish), or NOP by Kadriorg.</div>
+    <div class="f"><b>Dinner</b>Rataskaevu 16 (Estonian comfort food, Old Town, walk in ~19:00) Sat, F-hoone (Telliskivi) Sun, Boheem (Kalamaja neighbourhood classic; replaced Põhjala, closed Mondays) Mon. All walk-in.</div>
+  </div>
+
+  <!-- ============ RIGA ============ -->
+  <h2 id="riga">Riga<span class="sub">2 nights · Tue 28 - Thu 30 Jul</span></h2>
+
+  <div class="card cityintro">
+    <p><b>Theme.</b> The grandest and most varied of the three capitals: a medieval Hanseatic Old Town, the densest concentration of Art Nouveau architecture on earth, and one of Europe's biggest markets.</p>
+    <p><b>How the days split.</b> Riga splits cleanly in two. The arrival afternoon takes the medieval Old Town, because it is compact and right by the coach terminal where you land. The one full day takes the "New Town" belt: the Art Nouveau streets and the giant Central Market.</p>
+    <p><b>The route.</b> Day 2 runs north-to-south in one sweep: start in the elegant Art Nouveau quarter at the top, walk down through the centre and the canal park, and finish at the market and warehouses by the river. You never retrace your steps.</p>
+  </div>
+
+  <div id="map-riga" class="map"></div>
+  <div class="legend">
+    <span class="lg"><span class="dot" style="background:var(--d4)"></span> Day 4 · Tue, arrival + Old Town</span>
+    <span class="lg"><span class="dot" style="background:var(--d5)"></span> Day 5 · Wed, Art Nouveau + Market</span>
+    <span class="lg"><span class="hotelmark"></span> Recommended hotel zone</span>
+  </div>
+
+  <div class="hotel"><b>Where to base:</b> in the Old Town (Vecrīga) or just east toward the Quiet Centre. The coach terminal where you arrive, the Old Town, the Central Market, and the foot of the Art Nouveau district are all within a ~15-min walk of each other. One base, no internal transit, and you roll off the coach straight into it.</div>
+
+  <div class="why" style="border-left-color:#7b2fbe"><b style="color:#7b2fbe">Tickets and the Riga Pass.</b> Your three paid sights total about €25: St. Peter's church and tower €9, the Art Nouveau Museum €5-9, the Academy of Sciences deck ~€9. Everything is walkable, so you need no transport. The Riga passes are built around a hop-on-hop-off bus and 70-90 discounts you won't use and start above that, so skip the pass and pay individually. No strict dress code at Riga's churches.</div>
+
+  <h3><span class="daytag" style="background:var(--d4)">Day 4</span>Tue 28 Jul - arrive midday, the medieval core</h3>
+  <div class="exec"><b>Today:</b> you arrive around 14:00 and the Old Town is right there, so the afternoon is one clockwise loop of the compact medieval centre, climbing a church tower early for the lay of the land. The arrival day does all of Old Riga so the full day tomorrow is free for the Art Nouveau and the market. <span class="hl">Highlight: the rooftop view from St. Peter's spire.</span></div>
+  <table>
+    <tr><th>Time</th><th>Place</th><th>What you'll see, and how you get there</th></tr>
+    <tr><td class="t">08:50<span class="dur">transit</span></td><td class="pl">To Tallinn Bus Station</td><td>Tram 2 or 4 from Hobujaama (by the Viru Gate) to Bussijaam, ~10 min, or a 20-25 min walk. Coach departs 09:40 from platform 12 (Lastekodu tn 46); be there ~09:20 with the digital boarding pass and your passport.</td></tr>
+    <tr><td class="t">~14:00<span class="dur">arrival</span></td><td class="pl">Arrive + check in</td><td>The coach terminal is beside the Old Town, a 5-10 min walk to the hotel. Self check-in opens 15:00 (arrival was flagged to the property); if the room code is not live yet, leave the bag in the luggage nook or carry on, first stop is 5 min away.</td></tr>
+    <tr><td class="t">15:00<span class="dur">30 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=House%20of%20the%20Blackheads%20Riga" target="_blank">House of the Blackheads</a></td><td>An ornately gabled guildhall of unmarried merchants (the "Blackheads"), Riga's most photographed building, rebuilt after WWII in its Dutch-Renaissance splendour. Start here in the main square. <span class="meta">Loop the Old Town clockwise from here.</span></td></tr>
+    <tr><td class="t">15:40<span class="dur">45 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=St%20Peters%20Church%20Riga" target="_blank">St. Peter's Church tower</a></td><td>A red-brick Gothic church whose spire has a lift to a viewing gallery, the best panorama over the Old Town roofs and the river. <span class="meta"><span class="hours">Church + tower €9 (sold until 17:00), no booking; last lift ~17:15, so do it now.</span></span></td></tr>
+    <tr><td class="t">16:30<span class="dur">45 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Three%20Brothers%20Riga" target="_blank">Three Brothers</a> + <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Cat%20House%20Riga" target="_blank">Cat House</a></td><td>The Three Brothers are three medieval houses standing shoulder to shoulder, the oldest dwellings in Riga, each from a different century. The Cat House is a canary-yellow building with two black cat statues arching on its turrets, tied to a famous local spite-story. <span class="meta">A few minutes apart through the lanes.</span></td></tr>
+    <tr><td class="t">17:15<span class="dur">45 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Swedish%20Gate%20Riga" target="_blank">Swedish Gate</a> + <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Powder%20Tower%20Riga" target="_blank">Powder Tower</a></td><td>The only surviving 17th-century city gate and a round red-brick artillery tower pocked with old cannonballs, the remnants of Riga's fortifications at the north edge of the Old Town. <span class="meta">Short walk.</span></td></tr>
+    <tr><td class="t">19:00<span class="dur">dinner</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Milda%20restaurant%20Riga" target="_blank">Dinner: Milda</a></td><td>Authentic Latvian "grandma-style" cooking done well, a Michelin Bib Gourmand spot (quality at fair price, not fine dining; 4.4 stars, 2,411 reviews, ~€20-30). In the Old Town near your base. <span class="meta">Re-checked: recent food reviews are mostly positive (traditional Latvian dishes praised); the recurring low is service and seating attitude (which does not count per your rule). Walk-in on a Tuesday evening is normally fine: it is a small room, so arrive ~19:00 sharp.</span></td></tr>
+  </table>
+
+  <h3><span class="daytag" style="background:var(--d5)">Day 5</span>Wed 29 Jul - Art Nouveau, then the market belt</h3>
+  <div class="exec"><b>Today:</b> a morning among the most extravagant facades in Europe, then an afternoon in the gritty-grand market district. You start uptown in the Art Nouveau quarter for the morning light, walk down through the national monument and the canal park, and end at the giant market and the riverside warehouses. <span class="hl">Highlight: the carved facades of Alberta iela, Riga's real open-air museum.</span></div>
+  <table>
+    <tr><th>Time</th><th>Place</th><th>What you'll see, and how you get there</th></tr>
+    <tr><td class="t">08:45<span class="dur">grab</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Rocket%20Bean%20Roastery%20Dzirnavu%20Riga" target="_blank">Breakfast: Rocket Bean Roastery</a></td><td>Riga's best-known specialty coffee roastery, with good pastries and buns (4.6 stars, 1,757 reviews). The central Dzirnavu branch is on your way to the Art Nouveau streets. <span class="meta">Coffee and a pastry to go. Save room for sklandrausis at the Central Market later.</span></td></tr>
+    <tr><td class="t">09:30<span class="dur">45 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Alberta%20iela%20Riga" target="_blank">Alberta iela</a></td><td>A single street that is an open-air museum of Art Nouveau: facades crawling with carved masks, sphinxes and goddesses. Riga has more of this style than any city on earth, and this is its showcase. <span class="meta">~10-min walk north from the Old Town; morning light is best.</span></td></tr>
+    <tr><td class="t">10:15<span class="dur">45 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Riga%20Art%20Nouveau%20Museum" target="_blank">Art Nouveau Museum</a></td><td>A perfectly restored 1903 apartment with original furniture, a painted spiral staircase and stained glass, showing how the style looked lived-in. The one museum that fits your bar here, optional. <span class="meta"><span class="hours">€5-9, no booking, Tue-Sun 10:00-18:00 (closed Mon; we are here Wed).</span></span></td></tr>
+    <tr><td class="t">11:30<span class="dur">45 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Freedom%20Monument%20Riga" target="_blank">Freedom Monument</a> + <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Bastejkalns%20Park%20Riga" target="_blank">Bastejkalns Park</a></td><td>A 42m column topped by a woman holding three gold stars (Latvia's regions), the independence symbol with a ceremonial guard, then the leafy canal-side park beside it. <span class="meta">Walk back toward the centre.</span></td></tr>
+    <tr><td class="t">12:45<span class="dur">1 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Herrings%20and%20dills%20Riga" target="_blank">Lunch: Herrings and Dills</a></td><td>A tiny stall in the Central Market fish hall doing fresh Baltic fish soup and herring, cheap and genuinely local (4.7 stars, 531 reviews, €). The coastal-Latvian local lunch. <span class="meta">Lowest-review check: recent stream solid 5-stars; older lows were brusque-service gripes, normal for a no-frills market stall. Bring cash.</span></td></tr>
+    <tr><td class="t">14:00<span class="dur">1 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Riga%20Central%20Market" target="_blank">Central Market</a></td><td>One of Europe's largest markets, in five giant 1920s Zeppelin hangars. After lunch at the fish hall, browse the meat, dairy and produce halls and grab a sklandrausis. <span class="meta"><span class="hours">Open daily ~07:00-18:00; pavilions wind down late afternoon, an afternoon stop not an evening one.</span></span></td></tr>
+    <tr><td class="t">15:30<span class="dur">30 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Latvian%20Academy%20of%20Sciences%20Riga" target="_blank">Academy of Sciences viewpoint</a></td><td>A Stalin-era "wedding-cake" skyscraper, nicknamed locally "Stalin's Birthday Cake", with an open-air observation deck near the top for a wide city view. <span class="meta">Deck ~€9, no booking. 2-min walk from the market.</span></td></tr>
+    <tr><td class="t">16:15<span class="dur">45 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Spikeri%20Riga" target="_blank">Spīķeri warehouses</a></td><td>A row of restored 19th-century red-brick warehouses by the river, now cafés and creative spaces, a relaxed end to the day. <span class="meta">Beside the market. Optional Miera iela after.</span></td></tr>
+    <tr><td class="t">19:30<span class="dur">dinner</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Folkklubs%20Ala%20Pagrabs%20Riga" target="_blank">Dinner: Folkklubs Ala Pagrabs</a></td><td>A cavernous folk-club beer cellar serving hearty traditional Latvian food: grey peas with bacon, roast pork and rye bread. Cheap, lively and genuinely local (4.6 stars across 9,189 reviews). <span class="meta">Replaces Neiburgs, the polished hotel restaurant whose live reviews would not load and which leans more refined than local. Re-checked here: recent reviews are strongly positive and authentic; the few lows (a "tourist-trap" gripe, one food-poisoning report) are about a year old and isolated. Very popular; walk in by ~19:00 (a huge cellar, tables turn fast) and expect it lively. Drink: kvass, the Latvian fermented rye-bread soft drink, instead of the beer the cellar is named for.</span></td></tr>
+  </table>
+
+  <div class="food">
+    <div class="f"><b>Pastry / breakfast</b>Rocket Bean Roastery (4.6, coffee and pastries) and sklandrausis, the carrot-rye tart, from the Central Market.</div>
+    <div class="f"><b>Lunch</b>Herrings and Dills fish soup in the Central Market fish hall (4.7, cheap, local).</div>
+    <div class="f"><b>Dinner</b>Milda (authentic Latvian, Bib Gourmand) Tue; Folkklubs Ala Pagrabs (hearty Latvian cellar, cheap) Wed. Both walk-in, arrive ~19:00.</div>
+  </div>
+
+  <!-- ============ VILNIUS ============ -->
+  <h2 id="vilnius">Vilnius<span class="sub">3 nights · Thu 30 Jul - Sun 2 Aug</span></h2>
+
+  <div class="card cityintro">
+    <p><b>Theme.</b> The largest and most layered old town in the Baltics: baroque churches by the dozen, an Orthodox and Jewish past, and the bohemian Užupis quarter that declared itself a republic of artists.</p>
+    <p><b>How the days split.</b> Day 6 anchors you at the grand northern end (cathedral and castle hill) on arrival. Day 7 walks the full Old Town spine and crosses into Užupis. Day 8 is the Trakai lake-castle day trip. The final morning (Day 9) stays loose before the evening flight.</p>
+    <p><b>The route.</b> The Old Town is a long axis running north (cathedral) to south (the city gate). Day 6 takes the north end, Day 7 starts at the south gate and walks up so the two days meet in the middle without overlap, then loops east over the river to Užupis.</p>
+  </div>
+
+  <div id="map-vilnius" class="map"></div>
+  <div class="legend">
+    <span class="lg"><span class="dot" style="background:var(--d6)"></span> Day 6 · Thu, arrival + north anchor</span>
+    <span class="lg"><span class="dot" style="background:var(--d7)"></span> Day 7 · Fri, Old Town + Užupis</span>
+    <span class="lg"><span class="dot" style="background:var(--d9)"></span> Day 9 · Sun, relaxed + fly out</span>
+    <span class="lg"><span class="hotelmark"></span> Recommended hotel zone</span>
+  </div>
+
+  <div class="hotel"><b>Where to base:</b> in the Old Town (Senamiestis), south-central, between the Town Hall and the station. You walk in from the bus station, the whole Old Town is on foot, and on the last day the airport train is an 8-minute hop from the same station. Walk-in, walk-out, no transit in between.</div>
+
+  <div class="why" style="border-left-color:#c81d77"><b style="color:#c81d77">Tickets and the Vilnius Pass.</b> Almost everything here is free to walk, and your paid sights are few and cheap. Gediminas Tower €8 (funicular up €1 each way, or walk the path free). St. John's bell tower, the tallest viewpoint in the Old Town, €3. The university courtyards about €2. The cathedral itself is free; its separate bell tower is €5 and skippable, since you already climb Gediminas and St. John's. Optional on the last day, the MO Museum is about €10. That totals roughly €11-23, so the Vilnius Pass (more than that for 24 hours, and it does not cover Trakai) does not pay off for your plan. Nothing here needs advance booking. Dress rule: shoulders and knees covered inside the cathedral, the Gates of Dawn chapel and St. Anne's.</div>
+
+  <h3><span class="daytag" style="background:var(--d6)">Day 6</span>Thu 30 Jul - arrive midday, the grand northern anchor</h3>
+  <div class="exec"><b>Today:</b> you arrive around 13:45 and start at the city's monumental north end, the cathedral and the castle hill, for orientation and the big panorama, then drift down the main old street into the university quarter. The afternoon gives you the lay of the land from above before you explore on foot tomorrow. <span class="hl">Highlight: the Old Town panorama from Gediminas Tower.</span></div>
+  <table>
+    <tr><th>Time</th><th>Place</th><th>What you'll see, and how you get there</th></tr>
+    <tr><td class="t">09:30<span class="dur">transit</span></td><td class="pl">To Riga Bus Station</td><td>10-min walk from the Old Town (Prāgas iela 1, by the Central Market). Note: due to renovation, departures currently leave from the canal-side platforms; coach at 10:00, be there ~09:45 with the boarding pass and your passport.</td></tr>
+    <tr><td class="t">~13:45<span class="dur">arrival</span></td><td class="pl">Arrive + check in + <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Hales%20Turgus%20Vilnius" target="_blank">Halės Market</a> lunch</td><td>The bus station is at the south edge of the Old Town, ~10-min walk to the hotel. Halės Market (Halės Turgus) is right by the station, so make it your first local lunch: graze the food hall for cheese, smoked meats, rye bread and street-food stalls. <span class="meta"><span class="hours">Market open daytime, ~07:00-18:00.</span> Optional, since you arrive right beside it; otherwise grab lunch at a proper spot in the Old Town.</span></td></tr>
+    <tr><td class="t">14:30<span class="dur">30 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Vilnius%20Cathedral%20Square" target="_blank">Cathedral Square &amp; Belfry</a></td><td>A vast open square with a white neoclassical cathedral that looks like a Greek temple and a free-standing 57m bell tower. The city's main gathering place. <span class="meta">The northern anchor of the Old Town.</span></td></tr>
+    <tr><td class="t">15:15<span class="dur">1 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Gediminas%20Castle%20Tower%20Vilnius" target="_blank">Gediminas Tower</a></td><td>The red-brick stump of the old upper castle on its hill, reached by a short funicular. The rampart gives the best view over the Old Town's sea of baroque towers. <span class="meta">Funicular up €1 each way, or walk the path free. <span class="hours">Tower €8, ~10:00-21:00 summer, last entry ~30 min before close.</span></span></td></tr>
+    <tr><td class="t">16:30<span class="dur">2 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Pilies%20Street%20Vilnius" target="_blank">Pilies Street</a> + <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Vilnius%20University" target="_blank">University</a></td><td>Pilies (Castle Street) is the Old Town's oldest, liveliest artery, lined with cafés, amber shops and a craft market. It leads into Vilnius University, one of Eastern Europe's oldest (1579), a maze of 13 linked courtyards with a frescoed church you can wander. Climb the university's <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=St%20Johns%20Church%20bell%20tower%20Vilnius" target="_blank">St. John's bell tower</a>, the tallest viewpoint in the Old Town. <span class="meta"><span class="hours">Courtyards ~€2 (Mon-Sat ~09:00-18:00); St. John's tower €3, open in summer.</span></span></td></tr>
+    <tr><td class="t">19:30<span class="dur">dinner</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Snekutis%20Vilnius" target="_blank">Dinner: Šnekutis</a></td><td>A cult local tavern with cheap, hearty Lithuanian home food: cold beetroot soup, potato dishes, smoked snacks. Unpolished, loud, full of locals (4.5 stars, 5,745 reviews, €). <span class="meta">Order at the bar; the Šv. Mikalojaus branch sits in the Old Town on your hostel's street. Drink gira, Lithuania's fermented rye-bread soft drink, like a malty bread lemonade. Review check: recent lows are about slow bar service and queues, not the food or price, so it passes your test.</span></td></tr>
+  </table>
+
+  <h3><span class="daytag" style="background:var(--d7)">Day 7</span>Fri 31 Jul - the Old Town spine and bohemian Užupis</h3>
+  <div class="exec"><b>Today:</b> you walk the full baroque Old Town from its south gate upward, so you never retrace yesterday's ground, then cross the little river into Užupis, the artists' "republic", and finish on a viewpoint hill. Morning is grand churches, afternoon is quirky and bohemian. <span class="hl">Highlight: Užupis and its tongue-in-cheek constitution on the wall.</span></div>
+  <table>
+    <tr><th>Time</th><th>Place</th><th>What you'll see, and how you get there</th></tr>
+    <tr><td class="t">09:30<span class="dur">30 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Gate%20of%20Dawn%20Vilnius" target="_blank">Gates of Dawn</a></td><td>The last surviving medieval city gate, with a chapel built above the arch holding a revered gold-and-silver Madonna icon. You look up at it from the street, pilgrims pray below. <span class="meta">Start at the south end and walk north. <span class="hours">Chapel ~06:00-19:00.</span></span></td></tr>
+    <tr><td class="t">10:15<span class="dur">1 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Vilnius%20Town%20Hall%20Square" target="_blank">Town Hall Square</a></td><td>Walk up the main street past a stack of baroque churches to the neoclassical town hall and its café-lined square. <span class="meta">The Old Town's mid-point.</span></td></tr>
+    <tr><td class="t">11:30<span class="dur">45 min</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=St%20Annes%20Church%20Vilnius" target="_blank">St. Anne's Church</a></td><td>A jewel-box of red-brick Flamboyant Gothic that Napoleon reputedly wished he could carry back to Paris in the palm of his hand, with the Bernardine church and gardens behind it. <span class="meta">Toward the river.</span></td></tr>
+    <tr><td class="t">12:30<span class="dur">1.5 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Literatu%20Street%20Vilnius" target="_blank">Literatų Street</a> + lunch</td><td>A short lane whose walls are covered in small artworks honouring writers tied to Lithuania, a quirky open-air gallery. For lunch, <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Lauro%20Lapas%20Vilnius" target="_blank">Lauro Lapas</a> is a genuine local favourite (4.6, fresh seasonal cooking, ~€18-25, recent reviews clean), a short walk west of the spine; or grab a light bite on the lane if you would rather stay on route. <span class="meta">On the way to the river crossing.</span></td></tr>
+    <tr><td class="t">14:00<span class="dur">1.5 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Uzupis%20Vilnius" target="_blank">Užupis</a></td><td>A small neighbourhood across the river that jokingly declared itself an independent republic of artists in 1997. Its playful constitution ("everyone has the right to be happy") is posted on wall plaques in many languages, and a bronze angel presides over the square. <span class="meta">Cross the footbridge from St. Anne's.</span></td></tr>
+    <tr><td class="t">15:45<span class="dur">1 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Hill%20of%20Three%20Crosses%20Vilnius" target="_blank">Hill of Three Crosses</a></td><td>Three white crosses on a wooded rise, a short gentle climb through the park for the panoramic Old Town view. Or stay flat in the Bernardine Gardens if you prefer. <span class="meta">Across the park east of the centre.</span></td></tr>
+    <tr><td class="t">19:30<span class="dur">dinner</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Berneliu%20Uzeiga%20Vilnius" target="_blank">Dinner: Bernelių Užeiga</a></td><td>Homestyle Lithuanian done well: cepelinai (zeppelin-shaped potato dumplings with a minced-meat filling, sour cream and bacon on top), kibinai, cold beetroot soup and potato dishes at fair prices (4.4 stars, 2,046 reviews). An easy walk back into the Old Town from the Three Crosses. <span class="meta">Review check: recent lows are about waits, not the food or value, so it passes your test.</span></td></tr>
+  </table>
+
+  <h3><span class="daytag" style="background:var(--d8)">Day 8</span>Sat 1 Aug - Trakai (full day trip, mapped below)</h3>
+  <p class="note" style="margin-top:0">Detailed in the Trakai section that follows. You are back in Vilnius by ~17:00; the farewell dinner is in the Trakai table's last row.</p>
+
+  <h3><span class="daytag" style="background:var(--d9)">Day 9</span>Sun 2 Aug - relaxed, then fly home</h3>
+  <div class="exec"><b>Today:</b> a loose final morning, a last coffee and pastry and anything you skipped, then an easy airport run for the evening flight. Nothing is timed but the train to the airport. <span class="hl">Highlight: a full unhurried last day, the payoff of the evening flight.</span></div>
+  <table>
+    <tr><th>Time</th><th>Place</th><th>What you'll see, and how you get there</th></tr>
+    <tr><td class="t">morning<span class="dur">flexible</span></td><td class="pl">Loose Old Town + coffee</td><td>A final stroll and a last pastry at <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Pinavija%20Vilnius" target="_blank">Pinavija</a> (family-run bakery, the Napoleon cake and good coffee; Sunday opening unverified, if shut the Halės Market bakery stalls are the backup). Optional one museum if you want it: the <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=MO%20Museum%20Vilnius" target="_blank">MO Museum</a> (modern Lithuanian art in a sleek Libeskind building, about €10) or the Occupations/KGB museum. Both open Sundays. Pack.</td></tr>
+    <tr><td class="t">17:30<span class="dur">30 min</span></td><td class="pl">Station → airport</td><td>Train from the centre to the airport in 8 min (~€1), or a short bus.</td></tr>
+    <tr><td class="t">20:00<span class="dur">flight</span></td><td class="pl">Fly VNO → MUC</td><td>airBaltic nonstop, home 21:05.</td></tr>
+  </table>
+
+  <div class="food">
+    <div class="f"><b>Pastry / breakfast</b>Pinavija (4.6, family-run, the Napoleon cake and coffee). Try šakotis (spit-baked tree cake) once, from a bakery rather than a tourist stall.</div>
+    <div class="f"><b>Lunch</b>Halės Market food hall (local, your arrival lunch); Lauro Lapas (4.6, fresh seasonal, short walk west of the spine); kibinai at Kiubėtė in Trakai (4.2, lakeside, ~€10-15).</div>
+    <div class="f"><b>Dinner</b>Šnekutis Šv. Mikalojaus (4.5, local tavern, Thu), Bernelių Užeiga (4.4, homestyle Lithuanian, Fri), Šnekutis Šv. Stepono (the original farmhouse room, Sat; replaced Žilvino, which closes weekday 19:00 and does not open Saturdays). All cheap, local, walk-in, not touristy.</div>
+  </div>
+
+  <!-- ============ TRAKAI ============ -->
+  <h2>Trakai day trip<span class="sub">Day 8 · Sat 1 Aug</span></h2>
+
+  <div class="why"><b>Why Trakai is worth a whole day:</b> it is the only island castle in this part of Europe, a red Gothic castle on an island in a lake reached by footbridges, the postcard of Lithuania. It is gentle (flat lakeside walking, an optional rowboat), it is a different landscape after three city cores, and it carries a real food-and-culture hook: the Karaim, a tiny Turkic community settled here in the 1300s, whose wooden houses line the main street and whose pastry, kibinai, is the thing to eat by the water. You get the castle, the lake and a food you cannot get elsewhere, and you can skip the interior museum entirely and still get the whole point.</div>
+
+  <div class="exec"><b>Today:</b> a there-and-back day trip from your Vilnius base, so it does not touch the no-backtrack main route. You take a short train out, eat kibinai by the lake, cross the footbridges to the island castle, walk the shore, and head back for a relaxed final Vilnius evening. Placed Saturday, not the Sunday fly-out day, so it is never rushed against a flight. <span class="hl">Highlight: the island castle floating on the lake.</span></div>
+
+  <div id="map-trakai" class="map" style="height:360px"></div>
+  <div class="legend">
+    <span class="lg"><span class="dot" style="background:var(--d8)"></span> Day 8 · Trakai, in order</span>
+  </div>
+
+  <table>
+    <tr><th>Time</th><th>Place</th><th>What you'll see, and how you get there</th></tr>
+    <tr><td class="t">09:30<span class="dur">40 min</span></td><td class="pl">Train Vilnius → Trakai</td><td>Direct train ~30-40 min, ~€2, from the station next to the bus station. Frequent.</td></tr>
+    <tr><td class="t">10:30<span class="dur">1.5 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Karaim%20Street%20Trakai" target="_blank">Karaim Street</a> + kibinai</td><td>The main street of low wooden houses (traditionally with three front windows) of the Karaim, the small Turkic community brought here in the 1300s. The place to eat their signature kibinai pastries by the lake. <span class="meta">~25-min walk or a local bus from the station into town. Eat at <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Kiubete%20Trakai" target="_blank">Kiubėtė</a> by the lake (4.2, where locals stop passing through, about €10-15; order the classic chicken kibinai with broth, not a giant platter). Skip the two famous houses on the main drag (Senoji Kibininė, Kybynlar): recent reviews flag tourist-trap pricing and tired food.</span></td></tr>
+    <tr><td class="t">12:00<span class="dur">2 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Trakai%20Island%20Castle" target="_blank">Trakai Island Castle</a></td><td>A storybook red-brick Gothic castle on an island in Lake Galvė, reached by footbridges. The 14th to 15th-century seat of the Lithuanian grand dukes and the country's iconic image. Courtyard and island for sure, the interior history museum only if you feel like it. <span class="meta">Courtyard and island are free to walk; the ~€12 ticket is only for the interior museum, optional. <span class="hours">Open daily ~10:00-19:00 summer, last entry ~18:30.</span> Buy at the gate, no advance booking, but go before midday to beat the coach-tour queue.</span></td></tr>
+    <tr><td class="t">14:00<span class="dur">1.5 h</span></td><td class="pl"><a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Lake%20Galve%20Trakai" target="_blank">Lake Galvė loop</a></td><td>A lakeside walk past the islets, an optional rowboat or paddleboat, with the neoclassical Užutrakis manor visible across the water. <span class="meta">Around the shore from the castle.</span></td></tr>
+    <tr><td class="t">16:00<span class="dur">40 min</span></td><td class="pl">Train back to Vilnius</td><td>Back by ~17:00. Close the trip with dinner at <a class="lm" href="https://www.google.com/maps/search/?api=1&amp;query=Snekutis%20Sv%20Stepono%20Vilnius" target="_blank">Šnekutis, Šv. Stepono branch</a>, near the station on your walk home: the ORIGINAL farmhouse-style room of Thursday's tavern, wooden-hut interior, same cheap home cooking (cepelinai, potato pancakes) and homemade gira, the fermented rye-bread soft drink. <span class="meta">Hours check 20 Jul: the planned Žilvino turned out to be a weekday 09:00-19:00 canteen, closed Saturday evenings, so it was dropped. The Mikalojaus branch runs 11:00-23:00 daily; Stepono's exact closing is unverified, and if it is shut the Mikalojaus branch is a 10-min walk. Different room than Thursday, same family; if a local spot in Naujamiestis catches your eye on the walk, swap freely.</span></td></tr>
+  </table>
+
+  <footer>
+    <p>Baltics 2026 city plan, updated 20 Jul 2026 (post-audit). All travel and lodging is booked (flight prices shown were the pre-booking snapshots). Dining policy: everything walk-in, arrive ~19:00; no reservations. Maps use OpenStreetMap via Leaflet and need an internet connection to render. Hours re-verified 20 Jul for the actual travel dates: Seaplane Harbour daily 10:00-19:00 (May-Sep), Raeapteek Mon-Sat 10:00-18:00, RUKIS Sun from 08:00, RØST Mon from 08:30, F-hoone Sun to 22:00, Milda 12:00-23:00, Boheem daily 10:00-22:00, both Rataskaevu rooms, Šnekutis daily 11:00-23:00, Bernelių Sat to midnight, University courtyards Mon-Sat. Changes from the check: Põhjala (closed Mon) and Žilvino (weekday-only) were replaced. One unresolved: Pinavija's Sunday hours; if shut, the Halės Market bakery stalls cover the last-morning pastry. Everything else runs on typical summer hours from the June audit.</p>
+  </footer>
+
+</div>
+
+<script>
+const DAYC = {1:"#d7263d",2:"#1b9e3e",3:"#1f6fd0",4:"#e8730c",5:"#7b2fbe",6:"#c81d77",7:"#0e8f8f",8:"#9a7a0a",9:"#6b7480"};
+
+function numIcon(color, n){
+  return L.divIcon({
+    className:"",
+    html:'<div style="background:'+color+';width:24px;height:24px;border-radius:50%;border:2px solid #fff;'+
+         'box-shadow:0 1px 4px rgba(0,0,0,.4);color:#fff;font:700 13px/24px -apple-system,Arial;text-align:center">'+n+'</div>',
+    iconSize:[24,24], iconAnchor:[12,12]
+  });
+}
+
+function buildMap(id, center, zoom, days, hotel){
+  const map = L.map(id, {scrollWheelZoom:false}).setView(center, zoom);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {maxZoom:19, attribution:'&copy; OpenStreetMap'}).addTo(map);
+  const all = [];
+  days.forEach(d=>{
+    const pts=[];
+    d.stops.forEach(s=>{
+      pts.push([s.lat,s.lng]); all.push([s.lat,s.lng]);
+      L.marker([s.lat,s.lng], {icon:numIcon(d.color, s.n)})
+        .addTo(map)
+        .bindPopup('<b>Day '+d.day+' · stop '+s.n+'</b><br>'+s.name);
+    });
+    if(pts.length>1){
+      L.polyline(pts, {color:d.color, weight:3, opacity:.7, dashArray:'6,6'}).addTo(map);
+    }
+  });
+  if(hotel){
+    L.circle([hotel.lat,hotel.lng], {radius:hotel.r||420, color:'#111', weight:2, dashArray:'5,5',
+      fillColor:'#000', fillOpacity:.05}).addTo(map).bindPopup('Recommended hotel zone');
+  }
+  if(all.length){ map.fitBounds(all, {padding:[40,40]}); }
+}
+
+/* ---- TALLINN ---- */
+buildMap('map-tallinn', [59.440,24.755], 13, [
+ {day:1,color:DAYC[1],stops:[
+   {n:1,lat:59.4363,lng:24.7501,name:"Viru Gate + wall knit market"},
+   {n:2,lat:59.4375,lng:24.7482,name:"St. Catherine's Passage"},
+   {n:3,lat:59.4381,lng:24.7469,name:"Masters' Courtyard (Meistrite Hoov)"},
+   {n:4,lat:59.4372,lng:24.7453,name:"Town Hall Square + Raeapteek"},
+   {n:5,lat:59.4356,lng:24.7415,name:"Danish King's Garden"},
+   {n:6,lat:59.4371,lng:24.7423,name:"Dinner: Rataskaevu 16"}]},
+ {day:2,color:DAYC[2],stops:[
+   {n:1,lat:59.4358,lng:24.7396,name:"Alexander Nevsky + Toompea"},
+   {n:2,lat:59.4378,lng:24.7405,name:"Kohtuotsa viewpoint"},
+   {n:3,lat:59.4408,lng:24.7470,name:"St. Olaf's Church"},
+   {n:4,lat:59.4402,lng:24.7358,name:"Lunch: Balti Jaam Market"},
+   {n:5,lat:59.4490,lng:24.7330,name:"Seaplane Harbour"},
+   {n:6,lat:59.4430,lng:24.7368,name:"Kalamaja"},
+   {n:7,lat:59.4419,lng:24.7361,name:"Telliskivi Creative City"},
+   {n:8,lat:59.4419,lng:24.7355,name:"Dinner, Telliskivi"}]},
+ {day:3,color:DAYC[3],stops:[
+   {n:1,lat:59.4385,lng:24.7890,name:"Kadriorg Park"},
+   {n:2,lat:59.4399,lng:24.7818,name:"Lunch: NOP"},
+   {n:3,lat:59.4690,lng:24.8290,name:"Pirita beach + convent"},
+   {n:4,lat:59.4445,lng:24.7360,name:"Kalamaja wooden streets"},
+   {n:5,lat:59.4424,lng:24.7307,name:"Dinner: Boheem"}]}
+], {lat:59.4366,lng:24.7485,r:380});
+
+/* ---- RIGA ---- */
+buildMap('map-riga', [56.949,24.112], 14, [
+ {day:4,color:DAYC[4],stops:[
+   {n:1,lat:56.9438,lng:24.1118,name:"Coach terminal arrival"},
+   {n:2,lat:56.9472,lng:24.1069,name:"House of the Blackheads"},
+   {n:3,lat:56.9472,lng:24.1094,name:"St. Peter's Church tower"},
+   {n:4,lat:56.9499,lng:24.1035,name:"Three Brothers"},
+   {n:5,lat:56.9512,lng:24.1100,name:"Cat House"},
+   {n:6,lat:56.9508,lng:24.1066,name:"Swedish Gate + Powder Tower"},
+   {n:7,lat:56.9485,lng:24.1078,name:"Dinner, Old Town"}]},
+ {day:5,color:DAYC[5],stops:[
+   {n:1,lat:56.9595,lng:24.1055,name:"Alberta iela (Art Nouveau)"},
+   {n:2,lat:56.9596,lng:24.1048,name:"Art Nouveau Museum"},
+   {n:3,lat:56.9512,lng:24.1134,name:"Freedom Monument"},
+   {n:4,lat:56.9510,lng:24.1110,name:"Bastejkalns Park"},
+   {n:5,lat:56.9437,lng:24.1152,name:"Lunch: Herrings and Dills (fish hall)"},
+   {n:6,lat:56.9430,lng:24.1145,name:"Central Market"},
+   {n:7,lat:56.9425,lng:24.1190,name:"Academy of Sciences viewpoint"},
+   {n:8,lat:56.9440,lng:24.1170,name:"Spīķeri warehouses"}]}
+], {lat:56.9468,lng:24.1108,r:430});
+
+/* ---- VILNIUS ---- */
+buildMap('map-vilnius', [54.681,25.289], 14, [
+ {day:6,color:DAYC[6],stops:[
+   {n:1,lat:54.6705,lng:25.2820,name:"Arrival + Halės Market lunch"},
+   {n:2,lat:54.6858,lng:25.2877,name:"Cathedral Square + Belfry"},
+   {n:3,lat:54.6869,lng:25.2906,name:"Gediminas Tower"},
+   {n:4,lat:54.6826,lng:25.2882,name:"Pilies Street + University"},
+   {n:5,lat:54.6818,lng:25.2898,name:"Dinner, Old Town"}]},
+ {day:7,color:DAYC[7],stops:[
+   {n:1,lat:54.6747,lng:25.2898,name:"Gates of Dawn"},
+   {n:2,lat:54.6788,lng:25.2870,name:"Town Hall Square"},
+   {n:3,lat:54.6831,lng:25.2935,name:"St. Anne's + Bernardine"},
+   {n:4,lat:54.6840,lng:25.2920,name:"Literatų Street"},
+   {n:5,lat:54.6810,lng:25.2960,name:"Užupis"},
+   {n:6,lat:54.6880,lng:25.2960,name:"Hill of Three Crosses"},
+   {n:7,lat:54.6780,lng:25.2880,name:"Dinner, Bernelių Užeiga"}]},
+ {day:9,color:DAYC[9],stops:[
+   {n:1,lat:54.6820,lng:25.2890,name:"Loose Old Town + coffee"},
+   {n:2,lat:54.6770,lng:25.2790,name:"MO Museum (optional)"},
+   {n:3,lat:54.6705,lng:25.2820,name:"Station to airport"}]}
+], {lat:54.6795,lng:25.2858,r:430});
+
+/* ---- TRAKAI ---- */
+buildMap('map-trakai', [54.650,24.940], 14, [
+ {day:8,color:DAYC[8],stops:[
+   {n:1,lat:54.6440,lng:24.9560,name:"Trakai train station"},
+   {n:2,lat:54.6430,lng:24.9370,name:"Karaim Street + kibinai"},
+   {n:3,lat:54.6520,lng:24.9330,name:"Trakai Island Castle"},
+   {n:4,lat:54.6560,lng:24.9390,name:"Lake Galvė loop"},
+   {n:5,lat:54.6440,lng:24.9560,name:"Train back to Vilnius"}]}
+], null);
+</script>
+</body>
+</html>
